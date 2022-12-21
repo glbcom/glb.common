@@ -1,4 +1,4 @@
-# Play.commmon
+# Glb.commmon
 
 Common library used by Globalcom microservices ecosystem
 
