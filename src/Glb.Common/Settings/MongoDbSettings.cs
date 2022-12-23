@@ -1,4 +1,4 @@
-namespace Play.Common.Settings
+namespace Glb.Common.Settings
 {
     public class MongoDbSettings
     {
@@ -8,10 +8,13 @@ namespace Play.Common.Settings
 
         public int Port { get; init; }
 
-         public string ConnectionString
+        public string ConnectionString
         {
-            get { return string.IsNullOrWhiteSpace(connectionString) 
-                    ? $"mongodb://{Host}:{Port}" : connectionString; }
+            get
+            {
+                return string.IsNullOrWhiteSpace(connectionString)
+                    ? $"mongodb://{Host}:{Port}" : connectionString;
+            }
             init { connectionString = value; }
         }
 

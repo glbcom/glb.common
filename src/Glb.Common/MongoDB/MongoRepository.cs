@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 
-namespace Play.Common.MongoDB
+namespace Glb.Common.MongoDB
 {
 
     public class MongoRepository<T> : IRepository<T> where T : IEntity
@@ -25,7 +25,7 @@ namespace Play.Common.MongoDB
         public async Task<IReadOnlyCollection<T>> GetAllAsync(Expression<Func<T, bool>> filter)
         {
             return await dbCollection.Find(filter).ToListAsync();
-        }        
+        }
 
         public async Task<T> GetAsync(Guid id)
         {
@@ -36,7 +36,7 @@ namespace Play.Common.MongoDB
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter)
         {
             return await dbCollection.Find(filter).FirstOrDefaultAsync();
-        }        
+        }
 
         public async Task CreateAsync(T entity)
         {
@@ -47,7 +47,7 @@ namespace Play.Common.MongoDB
 
             await dbCollection.InsertOneAsync(entity);
         }
-     
+
         public async Task UpdateAsync(T entity)
         {
             if (entity == null)
@@ -63,6 +63,6 @@ namespace Play.Common.MongoDB
         {
             FilterDefinition<T> filter = filterBuilder.Eq(entity => entity.Id, id);
             await dbCollection.DeleteOneAsync(filter);
-        }      
+        }
     }
 }

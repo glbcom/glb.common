@@ -2,7 +2,7 @@ using System;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Play.Common.Settings;
+using Glb.Common.Settings;
 
 namespace Play.Common.Configuration
 {

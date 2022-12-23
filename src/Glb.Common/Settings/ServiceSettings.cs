@@ -1,4 +1,4 @@
-namespace Play.Common.Settings
+namespace Glb.Common.Settings
 {
     public class ServiceSettings
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MongoDB.Driver;
 
-namespace Play.Common.HealthChecks
+namespace Glb.Common.HealthChecks
 {
     public class MongoDbHealthCheck : IHealthCheck
     {

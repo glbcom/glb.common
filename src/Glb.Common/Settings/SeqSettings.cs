@@ -1,4 +1,4 @@
-namespace Play.Common.Settings
+namespace Glb.Common.Settings
 {
     public class SeqSettings
     {
@@ -7,7 +7,7 @@ namespace Play.Common.Settings
 
         public string ServerUrl
         {
-            get { return $"http://{Host}:{Port}";}
+            get { return $"http://{Host}:{Port}"; }
         }
     }
 }

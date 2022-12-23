@@ -6,9 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MongoDB.Driver;
-using Play.Common.Settings;
+using Glb.Common.Settings;
 
-namespace Play.Common.HealthChecks
+namespace Glb.Common.HealthChecks
 {
     public static class Extensions
     {

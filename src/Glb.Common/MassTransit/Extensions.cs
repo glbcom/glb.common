@@ -3,14 +3,14 @@ using System.Reflection;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Play.Common.Settings;
+using Glb.Common.Settings;
 
-namespace Play.Common.MassTransit
+namespace Glb.Common.MassTransit
 {
     public static class Extensions
     {
         private const string RabbitMq = "RABBITMQ";
-        private const string ServiceBus = "SERVICEBUS";      
+        private const string ServiceBus = "SERVICEBUS";
 
         public static IServiceCollection AddMassTransitWithMessageBroker(
            this IServiceCollection services,
@@ -33,9 +33,9 @@ Action<IRetryConfigurator> configureRetries = null)
             return services;
         }
 
-public static IServiceCollection AddMassTransitWithRabbitMq(
-            this IServiceCollection services,
- Action<IRetryConfigurator> configureRetries = null)
+        public static IServiceCollection AddMassTransitWithRabbitMq(
+                    this IServiceCollection services,
+         Action<IRetryConfigurator> configureRetries = null)
         {
             services.AddMassTransit(configure =>
             {
@@ -46,9 +46,9 @@ public static IServiceCollection AddMassTransitWithRabbitMq(
             return services;
         }
 
-public static IServiceCollection AddMassTransitWithServiceBus(
-            this IServiceCollection services, 
-Action<IRetryConfigurator> configureRetries = null)
+        public static IServiceCollection AddMassTransitWithServiceBus(
+                    this IServiceCollection services,
+        Action<IRetryConfigurator> configureRetries = null)
         {
             services.AddMassTransit(configure =>
             {
@@ -60,13 +60,13 @@ Action<IRetryConfigurator> configureRetries = null)
         }
 
         public static void UsingMessageBroker(
-            this IBusRegistrationConfigurator configure, 
+            this IBusRegistrationConfigurator configure,
 IConfiguration config,
 Action<IRetryConfigurator> configureRetries = null)
         {
             var serviceSettings = config.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-            
-switch (serviceSettings.MessageBroker?.ToUpper())
+
+            switch (serviceSettings.MessageBroker?.ToUpper())
             {
                 case ServiceBus:
                     configure.UsingAzureServiceBus(configureRetries);
@@ -120,6 +120,6 @@ switch (serviceSettings.MessageBroker?.ToUpper())
                 configurator.UseMessageRetry(configureRetries);
                 configurator.UseInstrumentation(serviceName: serviceSettings.ServiceName);
             });
-        }  
+        }
     }
 }

@@ -4,9 +4,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using Play.Common.Settings;
+using Glb.Common.Settings;
 
-namespace Play.Common.MongoDB
+namespace Glb.Common.MongoDB
 {
     public static class Extensions
     {

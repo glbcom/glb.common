@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Play.Common.Settings;
+using Glb.Common.Settings;
 
-namespace Play.Common.Logging
+namespace Glb.Common.Logging
 {
     public static class Extensions
     {

@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Play.Common.MassTransit;
-using Play.Common.Settings;
+using Glb.Common.MassTransit;
+using Glb.Common.Settings;
 
-namespace Play.Common.OpenTelemetry
+namespace Glb.Common.OpenTelemetry
 {
     public static class Extensions
     {
@@ -53,7 +53,7 @@ namespace Play.Common.OpenTelemetry
                         .AddHttpClientInstrumentation()
                         .AddAspNetCoreInstrumentation()
                         .AddPrometheusExporter();
-            });            
+            });
 
             return services;
         }

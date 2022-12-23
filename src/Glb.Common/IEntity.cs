@@ -1,6 +1,6 @@
 using System;
 
-namespace Play.Common
+namespace Glb.Common
 {
     public interface IEntity
     {

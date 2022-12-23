@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MassTransit;
 using OpenTelemetry.Trace;
 
-namespace Play.Common.MassTransit
+namespace Glb.Common.MassTransit
 {
     public class ConsumeObserver : IConsumeObserver
     {
