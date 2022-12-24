@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Glb.Common.Settings;
 
-namespace Play.Common.Configuration
+namespace Glb.Common.Configuration
 {
     public static class Extensions
     {

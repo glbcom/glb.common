@@ -38,7 +38,7 @@ namespace Glb.Common.HealthChecks
                 ));
         }
 
-        public static void MapPlayEconomyHealthChecks(this IEndpointRouteBuilder endpoints)
+        public static void MapGlbHealthChecks(this IEndpointRouteBuilder endpoints)
         {
             endpoints.MapHealthChecks($"/{HealthEndpoint}/{ReadyTagName}", new HealthCheckOptions()
             {
