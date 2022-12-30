@@ -71,6 +71,7 @@ public class GlbControllerBase : ControllerBase
                     }
                 }
                 string? claimValue = null;
+                _currentUser.UserName = User.FindAll("username").SingleOrDefault()?.Value;
                 _currentUser.FirstName = User.FindAll("first_name").SingleOrDefault()?.Value;
                 _currentUser.LastName = User.FindAll("last_name").SingleOrDefault()?.Value;
                 _currentUser.MobileNumber = User.FindAll("mobile_number").SingleOrDefault()?.Value;
