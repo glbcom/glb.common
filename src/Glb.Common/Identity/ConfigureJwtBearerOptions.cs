@@ -19,15 +19,18 @@ namespace Glb.Common.Identity
             this.configuration = configuration;
         }
 
-        public void Configure(string name, JwtBearerOptions options)
+        public void Configure(string? name, JwtBearerOptions options)
         {
             if (name == JwtBearerDefaults.AuthenticationScheme)
             {
                 var serviceSettings = configuration.GetSection(nameof(ServiceSettings))
                                                    .Get<ServiceSettings>();
+                if (serviceSettings != null)
+                {
+                    options.Authority = serviceSettings.Authority;
+                    options.Audience = serviceSettings.ServiceName;
+                }
 
-                options.Authority = serviceSettings.Authority;
-                options.Audience = serviceSettings.ServiceName;
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
