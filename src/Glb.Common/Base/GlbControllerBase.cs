@@ -69,29 +69,34 @@ public class GlbControllerBase : ControllerBase
                 if (scopeClaims != null)
                 {
                     Claim? c = null;
-                    c = scopeClaims.Where(claim => claim.Value == "first_name").FirstOrDefault();
+                    c = scopeClaims.Where(claim => claim.Type == "first_name").FirstOrDefault();
                     if (c != null)
                     {
                         _currentUser.FirstName = c.Value;
                     }
 
-                    c = scopeClaims.Where(claim => claim.Value == "last_name").FirstOrDefault();
+                    c = scopeClaims.Where(claim => claim.Type == "last_name").FirstOrDefault();
                     if (c != null)
                     {
                         _currentUser.FirstName = c.Value;
                     }
-                    c = scopeClaims.Where(claim => claim.Value == "mobile_number").FirstOrDefault();
+                    c = scopeClaims.Where(claim => claim.Type == "mobile_number").FirstOrDefault();
                     if (c != null)
                     {
                         _currentUser.MobileNumber = c.Value;
                     }
-                    c = scopeClaims.Where(claim => claim.Value == "mobile_number_confirmed").FirstOrDefault();
+                    c = scopeClaims.Where(claim => claim.Type == "email").FirstOrDefault();
+                    if (c != null)
+                    {
+                        _currentUser.Email = c.Value;
+                    }
+                    c = scopeClaims.Where(claim => claim.Type == "mobile_number_confirmed").FirstOrDefault();
                     if (c != null)
                     {
                         if (c.Value.ToLower() == "true")
                             _currentUser.MobileNumberConfirmed = true;
                     }
-                    c = scopeClaims.Where(claim => claim.Value == "created_on").FirstOrDefault();
+                    c = scopeClaims.Where(claim => claim.Type == "created_on").FirstOrDefault();
                     if (c != null)
                     {
                         if (DateTime.TryParse(c.Value, out DateTime createdOn) == true)
@@ -100,7 +105,7 @@ public class GlbControllerBase : ControllerBase
                         }
 
                     }
-                    c = scopeClaims.Where(claim => claim.Value == "gender").FirstOrDefault();
+                    c = scopeClaims.Where(claim => claim.Type == "gender").FirstOrDefault();
                     if (c != null)
                     {
                         if (Enum.TryParse(typeof(Enums.Gender), c.Value, out object? gender) == true)
