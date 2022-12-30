@@ -62,7 +62,7 @@ public class GlbControllerBase : ControllerBase
                     return _currentUser;
                 }
 
-                var compIdsClaims = User.FindAll("compids");
+                var compIdsClaims = User.FindAll("comp_ids");
                 if (compIdsClaims != null)
                 {
                     foreach (Claim compIdClaim in compIdsClaims)
