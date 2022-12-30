@@ -27,10 +27,28 @@ namespace Glb.Common.HealthChecks
                     serviceProvider =>
                     {
                         var configuration = serviceProvider.GetService<IConfiguration>();
-                        var mongoDbSettings = configuration.GetSection(nameof(MongoDbSettings))
-                                                           .Get<MongoDbSettings>();
-                        var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
-                        return new MongoDbHealthCheck(mongoClient);
+                        if (configuration != null)
+                        {
+                            var mongoDbSettings = configuration.GetSection(nameof(MongoDbSettings))
+                                                                                       .Get<MongoDbSettings>();
+                            if (mongoDbSettings != null)
+                            {
+                                var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
+                                return new MongoDbHealthCheck(mongoClient);
+
+                            }
+                            else
+                            {
+                                return new MongoDbHealthCheck();
+                            }
+
+                        }
+                        else
+                        {
+                            return new MongoDbHealthCheck();
+                        }
+
+
                     },
                     HealthStatus.Unhealthy,
                     new[] { ReadyTagName },

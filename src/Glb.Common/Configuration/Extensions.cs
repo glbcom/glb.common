@@ -17,11 +17,14 @@ namespace Glb.Common.Configuration
                     var configuration = configurationBuilder.Build();
                     var serviceSettings = configuration.GetSection(nameof(ServiceSettings))
                     .Get<ServiceSettings>();
+                    if (serviceSettings != null)
+                    {
+                        configurationBuilder.AddAzureKeyVault(
+                                            new Uri($"https://{serviceSettings.KeyVaultName}.vault.azure.net/"),
+                                            new DefaultAzureCredential()
+                                            );
+                    }
 
-                    configurationBuilder.AddAzureKeyVault(
-                    new Uri($"https://{serviceSettings.KeyVaultName}.vault.azure.net/"),
-                    new DefaultAzureCredential()
-                    );
                 }
             });
         }

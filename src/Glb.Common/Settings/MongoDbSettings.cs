@@ -2,9 +2,9 @@ namespace Glb.Common.Settings
 {
     public class MongoDbSettings
     {
-        private string connectionString;
+        private string? connectionString;
 
-        public string Host { get; init; }
+        public required string Host { get; init; }
 
         public int Port { get; init; }
 

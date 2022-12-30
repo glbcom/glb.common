@@ -19,21 +19,36 @@ namespace Glb.Common.OpenTelemetry
             {
                 var serviceSettings = config.GetSection(nameof(ServiceSettings))
                                                    .Get<ServiceSettings>();
+                if (serviceSettings != null)
+                {
+                    builder.AddSource(serviceSettings.ServiceName)
+                                           .AddSource("MassTransit")
+                                           .SetResourceBuilder(
+                                               ResourceBuilder.CreateDefault()
+                                                    .AddService(serviceName: serviceSettings.ServiceName))
+                                            .AddHttpClientInstrumentation()
+                                            .AddAspNetCoreInstrumentation()
+                                            .AddJaegerExporter(options =>
+                                            {
+                                                var jaegerSettings = config.GetSection(nameof(JaegerSettings))
+                                                                                  .Get<JaegerSettings>();
+                                                if (jaegerSettings != null)
+                                                {
+                                                    options.AgentHost = jaegerSettings.Host;
+                                                    options.AgentPort = jaegerSettings.Port;
+                                                }
+                                                else
+                                                {
+                                                    throw new System.Exception("jaegerSettings is null");
+                                                }
 
-                builder.AddSource(serviceSettings.ServiceName)
-                       .AddSource("MassTransit")
-                       .SetResourceBuilder(
-                           ResourceBuilder.CreateDefault()
-                                .AddService(serviceName: serviceSettings.ServiceName))
-                        .AddHttpClientInstrumentation()
-                        .AddAspNetCoreInstrumentation()
-                        .AddJaegerExporter(options =>
-                        {
-                            var jaegerSettings = config.GetSection(nameof(JaegerSettings))
-                                                              .Get<JaegerSettings>();
-                            options.AgentHost = jaegerSettings.Host;
-                            options.AgentPort = jaegerSettings.Port;
-                        });
+                                            });
+                }
+                else
+                {
+                    throw new System.Exception("ServiceSettings is null");
+                }
+
             })
             .AddConsumeObserver<ConsumeObserver>();
 
@@ -48,11 +63,15 @@ namespace Glb.Common.OpenTelemetry
             {
                 var settings = config.GetSection(nameof(ServiceSettings))
                                             .Get<ServiceSettings>();
-                builder.AddMeter(settings.ServiceName)
-                        .AddMeter("MassTransit")
-                        .AddHttpClientInstrumentation()
-                        .AddAspNetCoreInstrumentation()
-                        .AddPrometheusExporter();
+                if (settings != null)
+                {
+                    builder.AddMeter(settings.ServiceName)
+                                         .AddMeter("MassTransit")
+                                         .AddHttpClientInstrumentation()
+                                         .AddAspNetCoreInstrumentation()
+                                         .AddPrometheusExporter();
+                }
+
             });
 
             return services;

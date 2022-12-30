@@ -10,8 +10,8 @@ namespace Glb.Common.Base;
 public class GlbControllerBase : ControllerBase
 {
 
-    private Entities.GlbApplicationUser _currentUser;
-    public Entities.GlbApplicationUser CurrentUser
+    private Entities.GlbApplicationUser? _currentUser;
+    public Entities.GlbApplicationUser? CurrentUser
     {
         get
         {
@@ -21,13 +21,24 @@ public class GlbControllerBase : ControllerBase
                 Guid.TryParse(User.FindFirstValue(JwtRegisteredClaimNames.Sub), out Guid id);
                 if (id != null)
                 {
-                    _currentUser.Id = id;
+                    _currentUser = new Entities.GlbApplicationUser { Id = id };
+                }
+
+                if (_currentUser == null)
+                {
+                    return null;
                 }
 
                 var scopeClaims = User.FindAll("scope");
                 //read the list of compnaies from the JSON file
-                string strCompanies = System.IO.File.ReadAllText("Assets/Companies.json");
-                List<string> lstCompanies = JsonSerializer.Deserialize<List<string>>(strCompanies);
+                string? strCompanies = System.IO.File.ReadAllText("Assets/Companies.json");
+                List<string>? lstCompanies = null;
+
+                if (strCompanies != null)
+                {
+                    lstCompanies = JsonSerializer.Deserialize<List<string>>(strCompanies);
+                }
+
 
                 if (lstCompanies != null)
                 {
@@ -55,48 +66,51 @@ public class GlbControllerBase : ControllerBase
                     }
                 }
 
-
-                Claim c;
-                c = scopeClaims.Where(claim => claim.Value == "first_name").FirstOrDefault();
-                if (c != null)
+                if (scopeClaims != null)
                 {
-                    _currentUser.FirstName = c.Value;
-                }
-
-                c = scopeClaims.Where(claim => claim.Value == "last_name").FirstOrDefault();
-                if (c != null)
-                {
-                    _currentUser.FirstName = c.Value;
-                }
-                c = scopeClaims.Where(claim => claim.Value == "mobile_number").FirstOrDefault();
-                if (c != null)
-                {
-                    _currentUser.MobileNumber = c.Value;
-                }
-                c = scopeClaims.Where(claim => claim.Value == "mobile_number_confirmed").FirstOrDefault();
-                if (c != null)
-                {
-                    if (c.Value.ToLower() == "true")
-                        _currentUser.MobileNumberConfirmed = true;
-                }
-                c = scopeClaims.Where(claim => claim.Value == "created_on").FirstOrDefault();
-                if (c != null)
-                {
-                    if (DateTime.TryParse(c.Value, out DateTime createdOn) == true)
+                    Claim? c = null;
+                    c = scopeClaims.Where(claim => claim.Value == "first_name").FirstOrDefault();
+                    if (c != null)
                     {
-                        _currentUser.CreatedOn = createdOn;
+                        _currentUser.FirstName = c.Value;
                     }
 
-                }
-                c = scopeClaims.Where(claim => claim.Value == "gender").FirstOrDefault();
-                if (c != null)
-                {
-                    if (Enum.TryParse(typeof(Enums.Gender), c.Value, out object gender) == true)
+                    c = scopeClaims.Where(claim => claim.Value == "last_name").FirstOrDefault();
+                    if (c != null)
                     {
-                        _currentUser.Gender = (Enums.Gender)gender;
+                        _currentUser.FirstName = c.Value;
                     }
+                    c = scopeClaims.Where(claim => claim.Value == "mobile_number").FirstOrDefault();
+                    if (c != null)
+                    {
+                        _currentUser.MobileNumber = c.Value;
+                    }
+                    c = scopeClaims.Where(claim => claim.Value == "mobile_number_confirmed").FirstOrDefault();
+                    if (c != null)
+                    {
+                        if (c.Value.ToLower() == "true")
+                            _currentUser.MobileNumberConfirmed = true;
+                    }
+                    c = scopeClaims.Where(claim => claim.Value == "created_on").FirstOrDefault();
+                    if (c != null)
+                    {
+                        if (DateTime.TryParse(c.Value, out DateTime createdOn) == true)
+                        {
+                            _currentUser.CreatedOn = createdOn;
+                        }
 
+                    }
+                    c = scopeClaims.Where(claim => claim.Value == "gender").FirstOrDefault();
+                    if (c != null)
+                    {
+                        if (Enum.TryParse(typeof(Enums.Gender), c.Value, out object? gender) == true)
+                        {
+                            _currentUser.Gender = (Enums.Gender)gender;
+                        }
+
+                    }
                 }
+
 
             }
 

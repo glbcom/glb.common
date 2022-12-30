@@ -19,10 +19,25 @@ namespace Glb.Common.MongoDB
             services.AddSingleton(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-                var mongoDbSettings = configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-                var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
-                return mongoClient.GetDatabase(serviceSettings.ServiceName);
+                if (configuration != null)
+                {
+                    var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+                    var mongoDbSettings = configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+                    if (mongoDbSettings != null && serviceSettings != null)
+                    {
+                        var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
+                        return mongoClient.GetDatabase(serviceSettings.ServiceName);
+                    }
+                    else
+                    {
+                        throw new System.Exception("mongoDbSettings or serviceSettings is null");
+                    }
+                }
+                else
+                {
+                    throw new System.Exception("Configuration is null");
+                }
+
             });
 
             return services;
@@ -34,7 +49,15 @@ namespace Glb.Common.MongoDB
             services.AddSingleton<IRepository<T>>(serviceProvider =>
             {
                 var database = serviceProvider.GetService<IMongoDatabase>();
-                return new MongoRepository<T>(database, collectionName);
+                if (database != null)
+                {
+                    return new MongoRepository<T>(database, collectionName);
+                }
+                else
+                {
+                    throw new System.Exception("database is null");
+                }
+
             });
 
             return services;

@@ -8,19 +8,28 @@ namespace Glb.Common.HealthChecks
 {
     public class MongoDbHealthCheck : IHealthCheck
     {
-        private readonly MongoClient client;
+        private readonly MongoClient? client;
 
         public MongoDbHealthCheck(MongoClient client)
         {
             this.client = client;
+        }
+        public MongoDbHealthCheck()
+        {
+
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(
             HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
+
             try
             {
+                if (client == null)
+                {
+                    throw new Exception("MongoClient is null");
+                }
                 await client.ListDatabaseNamesAsync(cancellationToken);
                 return HealthCheckResult.Healthy();
             }

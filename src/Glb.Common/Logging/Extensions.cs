@@ -14,7 +14,11 @@ namespace Glb.Common.Logging
             services.AddLogging(loggingBuilder =>
             {
                 var seqSettings = config.GetSection(nameof(SeqSettings)).Get<SeqSettings>();
-                loggingBuilder.AddSeq(serverUrl: seqSettings.ServerUrl);
+                if (seqSettings != null)
+                {
+                    loggingBuilder.AddSeq(serverUrl: seqSettings.ServerUrl);
+                }
+
             });
 
             return services;

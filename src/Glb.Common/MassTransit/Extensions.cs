@@ -15,32 +15,38 @@ namespace Glb.Common.MassTransit
         public static IServiceCollection AddMassTransitWithMessageBroker(
            this IServiceCollection services,
 IConfiguration config,
-Action<IRetryConfigurator> configureRetries = null)
+Action<IRetryConfigurator>? configureRetries = null)
         {
             var serviceSettings = config.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-
-            switch (serviceSettings.MessageBroker?.ToUpper())
+            if (serviceSettings != null && configureRetries != null)
             {
-                case ServiceBus:
-                    services.AddMassTransitWithServiceBus(configureRetries);
-                    break;
-                case RabbitMq:
-                default:
-                    services.AddMassTransitWithRabbitMq(configureRetries);
-                    break;
+                switch (serviceSettings.MessageBroker?.ToUpper())
+                {
+                    case ServiceBus:
+                        services.AddMassTransitWithServiceBus(configureRetries);
+                        break;
+                    case RabbitMq:
+                    default:
+                        services.AddMassTransitWithRabbitMq(configureRetries);
+                        break;
+                }
             }
+
 
             return services;
         }
 
         public static IServiceCollection AddMassTransitWithRabbitMq(
                     this IServiceCollection services,
-         Action<IRetryConfigurator> configureRetries = null)
+         Action<IRetryConfigurator>? configureRetries = null)
         {
             services.AddMassTransit(configure =>
             {
                 configure.AddConsumers(Assembly.GetEntryAssembly());
-                configure.UsingRabbitMq(configureRetries);
+                if (configureRetries != null)
+                {
+                    configure.UsingRabbitMq(configureRetries);
+                }
             });
 
             return services;
@@ -48,12 +54,16 @@ Action<IRetryConfigurator> configureRetries = null)
 
         public static IServiceCollection AddMassTransitWithServiceBus(
                     this IServiceCollection services,
-        Action<IRetryConfigurator> configureRetries = null)
+        Action<IRetryConfigurator>? configureRetries = null)
         {
             services.AddMassTransit(configure =>
             {
                 configure.AddConsumers(Assembly.GetEntryAssembly());
-                configure.UsingAzureServiceBus(configureRetries);
+                if (configureRetries != null)
+                {
+                    configure.UsingAzureServiceBus(configureRetries);
+                }
+
             });
 
             return services;
@@ -61,64 +71,97 @@ Action<IRetryConfigurator> configureRetries = null)
 
         public static void UsingMessageBroker(
             this IBusRegistrationConfigurator configure,
-IConfiguration config,
-Action<IRetryConfigurator> configureRetries = null)
+            IConfiguration config,
+            Action<IRetryConfigurator>? configureRetries = null)
         {
             var serviceSettings = config.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-
-            switch (serviceSettings.MessageBroker?.ToUpper())
+            if (serviceSettings != null && configureRetries != null)
             {
-                case ServiceBus:
-                    configure.UsingAzureServiceBus(configureRetries);
-                    break;
-                case RabbitMq:
-                default:
-                    configure.UsingRabbitMq(configureRetries);
-                    break;
+                switch (serviceSettings.MessageBroker?.ToUpper())
+                {
+                    case ServiceBus:
+                        configure.UsingAzureServiceBus(configureRetries);
+                        break;
+                    case RabbitMq:
+                    default:
+                        configure.UsingRabbitMq(configureRetries);
+                        break;
+                }
             }
+
         }
 
         public static void UsingRabbitMq(
             this IBusRegistrationConfigurator configure,
- Action<IRetryConfigurator> configureRetries = null)
+            Action<IRetryConfigurator>? configureRetries = null)
         {
             configure.UsingRabbitMq((context, configurator) =>
             {
                 var configuration = context.GetService<IConfiguration>();
-                var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-                var rabbitMQSettings = configuration.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
-                configurator.Host(rabbitMQSettings.Host);
-                configurator.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
-
-                if (configureRetries == null)
+                if (configuration != null)
                 {
-                    configureRetries = (retryConfigurator) => retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
+                    var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+                    var rabbitMQSettings = configuration.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
+                    if (rabbitMQSettings != null)
+                    {
+                        configurator.Host(rabbitMQSettings.Host);
+                    }
+                    if (serviceSettings != null)
+                    {
+                        configurator.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
+                    }
+
+                    if (configureRetries == null)
+                    {
+                        configureRetries = (retryConfigurator) => retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
+                    }
+
+                    configurator.UseMessageRetry(configureRetries);
+                    if (serviceSettings != null)
+                    {
+                        configurator.UseInstrumentation(serviceName: serviceSettings.ServiceName);
+                    }
                 }
 
-                configurator.UseMessageRetry(configureRetries);
-                configurator.UseInstrumentation(serviceName: serviceSettings.ServiceName);
+
+
             });
         }
 
         public static void UsingAzureServiceBus(
             this IBusRegistrationConfigurator configure,
- Action<IRetryConfigurator> configureRetries = null)
+ Action<IRetryConfigurator>? configureRetries = null)
         {
             configure.UsingAzureServiceBus((context, configurator) =>
             {
                 var configuration = context.GetService<IConfiguration>();
-                var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-                var serviceBusSettings = configuration.GetSection(nameof(ServiceBusSettings)).Get<ServiceBusSettings>();
-                configurator.Host(serviceBusSettings.ConnectionString);
-                configurator.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
-
-                if (configureRetries == null)
+                if (configuration != null)
                 {
-                    configureRetries = (retryConfigurator) => retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
+                    var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
+                    var serviceBusSettings = configuration.GetSection(nameof(ServiceBusSettings)).Get<ServiceBusSettings>();
+                    if (serviceBusSettings != null)
+                    {
+                        configurator.Host(serviceBusSettings.ConnectionString);
+                    }
+                    if (serviceSettings != null)
+                    {
+                        configurator.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
+                    }
+                    if (configureRetries == null)
+                    {
+                        configureRetries = (retryConfigurator) => retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
+                    }
+
+                    configurator.UseMessageRetry(configureRetries);
+                    if (serviceSettings != null)
+                    {
+                        configurator.UseInstrumentation(serviceName: serviceSettings.ServiceName);
+                    }
+
+
                 }
 
-                configurator.UseMessageRetry(configureRetries);
-                configurator.UseInstrumentation(serviceName: serviceSettings.ServiceName);
+
             });
         }
     }
