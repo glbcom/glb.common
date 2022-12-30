@@ -1,5 +1,3 @@
-namespace Glb.Common;
-public class Enums
-{
-    public enum Gender { Unkown, Male, Female }
-}
+namespace Glb.Common.Enums;
+
+public enum Gender { Unkown, Male, Female }
