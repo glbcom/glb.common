@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace Glb.Common
+namespace Glb.Common.Inerfaces
 {
     public interface IRepository<T> where T : IEntity
     {

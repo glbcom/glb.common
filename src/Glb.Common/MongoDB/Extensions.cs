@@ -5,6 +5,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Glb.Common.Settings;
+using Glb.Common.Inerfaces;
 
 namespace Glb.Common.MongoDB
 {

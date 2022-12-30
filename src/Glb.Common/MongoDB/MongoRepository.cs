@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Glb.Common.Inerfaces;
 
 namespace Glb.Common.MongoDB
 {

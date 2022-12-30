@@ -1,6 +1,6 @@
 using System;
 
-namespace Glb.Common
+namespace Glb.Common.Inerfaces
 {
     public interface IEntity
     {
