@@ -15,22 +15,27 @@ public class GlbControllerBase : ControllerBase
     {
         get
         {
+
             if (User != null)
             {
                 Guid.TryParse(User.FindFirstValue(JwtRegisteredClaimNames.Sub), out Guid id);
-                _currentUser.Id = id;
+                if (id != null)
+                {
+                    _currentUser.Id = id;
+                }
+
                 var scopeClaims = User.FindAll("scope");
                 //read the list of compnaies from the JSON file
                 string strCompanies = System.IO.File.ReadAllText("Assets/Companies.json");
                 List<string> lstCompanies = JsonSerializer.Deserialize<List<string>>(strCompanies);
-                List<string> userCompanies = new List<string>();
+
                 if (lstCompanies != null)
                 {
                     foreach (Claim clm in scopeClaims)
                     {
-                        _currentUser.ScopeCompId = lstCompanies.Where(comp => comp.ToUpper() == clm.Value.ToUpper()).FirstOrDefault();
-                        if (!string.IsNullOrEmpty(_currentUser.ScopeCompId))
+                        if (lstCompanies.Where(comp => comp.ToUpper() == clm.Value.ToUpper()).FirstOrDefault() != null)
                         {
+                            _currentUser.ScopeCompId = clm.Value;
                             break;
                         }
                     }
@@ -42,11 +47,13 @@ public class GlbControllerBase : ControllerBase
                 }
 
                 var compIdsClaims = User.FindAll("compids");
-                foreach (Claim compIdClaim in compIdsClaims)
+                if (compIdsClaims != null)
                 {
-                    _currentUser.CompIds.Add(compIdClaim.Value);
+                    foreach (Claim compIdClaim in compIdsClaims)
+                    {
+                        _currentUser.CompIds.Add(compIdClaim.Value);
+                    }
                 }
-
 
 
                 Claim c;
