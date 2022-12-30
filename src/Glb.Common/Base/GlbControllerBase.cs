@@ -11,6 +11,11 @@ public class GlbControllerBase : ControllerBase
 {
 
     private Entities.GlbApplicationUser? _currentUser;
+
+    public bool IsInRole(string role)
+    {
+        return User.IsInRole(role);
+    }
     public Entities.GlbApplicationUser? CurrentUser
     {
         get
@@ -65,58 +70,33 @@ public class GlbControllerBase : ControllerBase
                         _currentUser.CompIds.Add(compIdClaim.Value);
                     }
                 }
-
-                if (scopeClaims != null)
+                string? claimValue = null;
+                _currentUser.FirstName = User.FindAll("first_name").SingleOrDefault()?.Value;
+                _currentUser.LastName = User.FindAll("last_name").SingleOrDefault()?.Value;
+                _currentUser.MobileNumber = User.FindAll("mobile_number").SingleOrDefault()?.Value;
+                _currentUser.Email = User.FindAll("email").SingleOrDefault()?.Value;
+                claimValue = User.FindAll("mobile_number_confirmed").SingleOrDefault()?.Value;
+                if (claimValue != null && claimValue.ToLower() == "true")
                 {
-                    Claim? c = null;
-                    c = scopeClaims.Where(claim => claim.Type == "first_name").FirstOrDefault();
-                    if (c != null)
-                    {
-                        _currentUser.FirstName = c.Value;
-                    }
-
-                    c = scopeClaims.Where(claim => claim.Type == "last_name").FirstOrDefault();
-                    if (c != null)
-                    {
-                        _currentUser.FirstName = c.Value;
-                    }
-                    c = scopeClaims.Where(claim => claim.Type == "mobile_number").FirstOrDefault();
-                    if (c != null)
-                    {
-                        _currentUser.MobileNumber = c.Value;
-                    }
-                    c = scopeClaims.Where(claim => claim.Type == "email").FirstOrDefault();
-                    if (c != null)
-                    {
-                        _currentUser.Email = c.Value;
-                    }
-                    c = scopeClaims.Where(claim => claim.Type == "mobile_number_confirmed").FirstOrDefault();
-                    if (c != null)
-                    {
-                        if (c.Value.ToLower() == "true")
-                            _currentUser.MobileNumberConfirmed = true;
-                    }
-                    c = scopeClaims.Where(claim => claim.Type == "created_on").FirstOrDefault();
-                    if (c != null)
-                    {
-                        if (DateTime.TryParse(c.Value, out DateTime createdOn) == true)
-                        {
-                            _currentUser.CreatedOn = createdOn;
-                        }
-
-                    }
-                    c = scopeClaims.Where(claim => claim.Type == "gender").FirstOrDefault();
-                    if (c != null)
-                    {
-                        if (Enum.TryParse(typeof(Enums.Gender), c.Value, out object? gender) == true)
-                        {
-                            _currentUser.Gender = (Enums.Gender)gender;
-                        }
-
-                    }
+                    _currentUser.MobileNumberConfirmed = true;
                 }
+                claimValue = User.FindAll("email_confirmed").SingleOrDefault()?.Value;
+                if (claimValue != null && claimValue.ToLower() == "true")
+                {
+                    _currentUser.EmailConfirmed = true;
+                }
+                claimValue = User.FindAll("created_on").SingleOrDefault()?.Value;
+                if (claimValue != null && DateTime.TryParse(claimValue, out DateTime createdOn) == true)
+                {
+                    _currentUser.CreatedOn = createdOn;
 
+                }
+                claimValue = User.FindAll("gender").SingleOrDefault()?.Value;
+                if (claimValue != null && Enum.TryParse(typeof(Enums.Gender), claimValue, out object? gender) == true)
+                {
+                    _currentUser.Gender = (Enums.Gender)gender;
 
+                }
             }
 
             return _currentUser;
