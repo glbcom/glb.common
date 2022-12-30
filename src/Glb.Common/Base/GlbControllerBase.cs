@@ -17,8 +17,9 @@ public class GlbControllerBase : ControllerBase
         {
             if (User != null)
             {
+                Guid.TryParse(User.FindFirstValue(JwtRegisteredClaimNames.Sub), out Guid id);
+                _currentUser.Id = id;
                 var scopeClaims = User.FindAll("scope");
-                var currentUserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
                 //read the list of compnaies from the JSON file
                 string strCompanies = System.IO.File.ReadAllText("Assets/Companies.json");
                 List<string> lstCompanies = JsonSerializer.Deserialize<List<string>>(strCompanies);
@@ -47,7 +48,6 @@ public class GlbControllerBase : ControllerBase
                 }
 
 
-                string[] claimTypes = { "username", "first_name", "last_name", "mobile_number", "email", "gender" };
 
                 Claim c;
                 c = scopeClaims.Where(claim => claim.Value == "first_name").FirstOrDefault();
