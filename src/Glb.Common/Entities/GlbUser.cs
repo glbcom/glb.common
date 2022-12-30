@@ -10,9 +10,11 @@ public class GlbApplicationUser
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public required string MobileNumber { get; set; }
-    public Enums.Gneder Gneder { get; set; }
-    public string Email { get; set; }
+    public required string Email { get; set; }
+    public required bool MobileNumberConfirmed { get; set; }
+    public required DateTime CreatedOn { get; set; }
+    public required bool EmailConfirmed { get; set; }
+    public Enums.Gender Gender { get; set; }
     public required string ScopeCompId { get; set; }
     public List<string> CompIds { get; set; } = new();
-    public HashSet<Guid> MessageIds { get; set; } = new();
 }
