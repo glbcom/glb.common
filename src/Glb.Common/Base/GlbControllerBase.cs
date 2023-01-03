@@ -7,13 +7,15 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Glb.Common.Base;
-public class GlbControllerBase : ControllerBase
+public abstract class GlbControllerBase : ControllerBase
 {
 
     private Entities.GlbApplicationUser? _currentUser;
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     public bool IsInRole(string role)
     {
+
         return User.IsInRole(role);
     }
     public Entities.GlbApplicationUser? CurrentUser
