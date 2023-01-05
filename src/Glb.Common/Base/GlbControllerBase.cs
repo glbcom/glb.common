@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
+using Glb.Common.Settings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Glb.Common.Base;
@@ -13,7 +14,7 @@ public abstract class GlbControllerBase : ControllerBase
     private Entities.GlbApplicationUser? _currentUser;
 
     [ApiExplorerSettings(IgnoreApi = true)]
-    public bool IsInRole(string role)
+    public bool CurrentUserIsInRole(string role)
     {
 
         return User.IsInRole(role);
@@ -37,14 +38,8 @@ public abstract class GlbControllerBase : ControllerBase
                 }
 
                 var scopeClaims = User.FindAll("scope");
-                //read the list of compnaies from the JSON file
-                string? strCompanies = System.IO.File.ReadAllText("Assets/Companies.json");
-                List<string>? lstCompanies = null;
 
-                if (strCompanies != null)
-                {
-                    lstCompanies = JsonSerializer.Deserialize<List<string>>(strCompanies);
-                }
+                List<string> lstCompanies = GlbCompanies.Ids;
 
 
                 if (lstCompanies != null)
