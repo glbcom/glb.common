@@ -91,9 +91,9 @@ namespace Glb.Common.GlbServices
                 return true;
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                throw new Exception("Error while sending email", ex);
             }
         }
     }
