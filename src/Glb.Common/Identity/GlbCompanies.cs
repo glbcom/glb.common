@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Glb.Common.Settings;
+namespace Glb.Common.Identity;
 public static class GlbCompanies
 {
     private static List<string>? ids;
@@ -9,6 +9,5 @@ public static class GlbCompanies
     {
         get { return new() { "IDM", "CYB", "GDS", "CBV" }; }
     }
-
 
 }

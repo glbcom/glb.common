@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
-using Glb.Common.Settings;
+using Glb.Common.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Glb.Common.Base;
