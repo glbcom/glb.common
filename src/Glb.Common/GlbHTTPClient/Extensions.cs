@@ -19,7 +19,9 @@ public static class Extensions
     {
         //System.Action<System.IServiceProvider, System.Net.Http.HttpClient> configureClient
         Random jitterer = new Random();
-        var glbHttpClientSettings = config.GetSection(nameof(HttpClientSettings)).Get<List<HttpClientSettings>>()!.Where(n => n.ClientName == clientName).FirstOrDefault();
+        var glbHttpClientSettings = config.GetSection(nameof(HttpClientSettings)).
+                Get<List<HttpClientSettings>>()!.Where(n => n.ClientName ==
+                clientName).FirstOrDefault();
 
         //configureClient = Action<IServiceProvider, HttpClient>;
         if (glbHttpClientSettings == null)
@@ -44,7 +46,7 @@ public static class Extensions
               }
           ))
           .AddTransientHttpErrorPolicy(builder => builder.Or<TimeoutRejectedException>().CircuitBreakerAsync(
-              glbHttpClientSettings.handledEventsAllowedBeforeBreaking,
+              glbHttpClientSettings.HandledEventsAllowedBeforeBreaking,
               TimeSpan.FromSeconds(glbHttpClientSettings.DurationOfBreakInSeconds),
               onBreak: (outcome, timespan) =>
               {

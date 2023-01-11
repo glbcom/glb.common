@@ -9,5 +9,5 @@ public class HttpClientSettings
 
     public int DurationOfBreakInSeconds { get; init; }
     public int TimeoutInSeconds { get; init; }
-    public int handledEventsAllowedBeforeBreaking { get; init; }
+    public int HandledEventsAllowedBeforeBreaking { get; init; }
 }
