@@ -29,6 +29,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.2" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.2" />
     <PackageReference Include="Seq.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="VaultSharp" Version="1.12.2" />
 	</ItemGroup>
 
 </Project>
