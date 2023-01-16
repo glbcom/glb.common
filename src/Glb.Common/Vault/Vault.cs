@@ -16,14 +16,14 @@ namespace Glb.Common.Vault
             new VaultClientSettings(VaultURL, authMethod);
         private static IVaultClient vaultClient = new VaultClient(vaultClientSettings);
 
-        public static async Task<T?> ReadSecretAsync<T>(T ConfigObject, string MointPoint,
-            string Path) where T : class
+        public static async Task<T> ReadSecretAsync<T>(T configurationObject, string mointPoint,
+            string path) where T : class
         {
             Secret<SecretData> secretValue = await vaultClient.V1.Secrets.KeyValue.V2
-                               .ReadSecretAsync(path: Path, mountPoint: MointPoint);
+                               .ReadSecretAsync(path: path, mountPoint: mointPoint);
 
             var configDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                JsonConvert.SerializeObject(ConfigObject)
+                JsonConvert.SerializeObject(configurationObject)
             );
             Dictionary<string, object> secretDictionary = new Dictionary<string, object>(secretValue.Data.Data);
 
@@ -37,9 +37,11 @@ namespace Glb.Common.Vault
                 }
             }
 
-            var result =
-                JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(configDictionary));
-            return result;
+            var result = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(configDictionary));
+            if (result != null)
+                return result;
+            else
+                return configurationObject;
         }
 
 
