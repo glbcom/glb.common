@@ -27,10 +27,9 @@ public abstract class GlbControllerBase : ControllerBase
             if (User != null)
             {
                 Guid.TryParse(User.FindFirstValue(JwtRegisteredClaimNames.Sub), out Guid id);
-                if (id != null)
-                {
-                    _currentUser = new Entities.GlbApplicationUser { Id = id };
-                }
+
+                _currentUser = new Entities.GlbApplicationUser { Id = id };
+
 
                 if (_currentUser == null)
                 {

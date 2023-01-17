@@ -16,57 +16,50 @@ namespace Glb.Common.Vault
             new VaultClientSettings(VaultURL, authMethod);
         private static IVaultClient vaultClient = new VaultClient(vaultClientSettings);
 
-        public static async Task<T> ReadSecretAsync<T>(T configurationObject, string mointPoint,
-            string path) where T : class
+        public static async Task<T> ReadSecretAsync<T>(string mountPoint,
+            string path, T? configurationObject = null) where T : class
         {
             Secret<SecretData> secretValue = await vaultClient.V1.Secrets.KeyValue.V2
-                               .ReadSecretAsync(path: path, mountPoint: mointPoint);
+                               .ReadSecretAsync(path: path, mountPoint: mountPoint);
 
-            var configDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                JsonConvert.SerializeObject(configurationObject)
-            );
+            Dictionary<string, object>? configDictionary = new Dictionary<string, object>();
+
+            if (configurationObject != null)
+            {
+                configDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                   JsonConvert.SerializeObject(configurationObject)
+               );
+                if (configDictionary == null)
+                {
+                    configDictionary = new Dictionary<string, object>();
+                }
+            }
+
+
             Dictionary<string, object> secretDictionary = new Dictionary<string, object>(secretValue.Data.Data);
 
             //Get all the keys from vault and replace their values in the main configuration file object
             foreach (string key in secretDictionary.Keys)
             {
-                string value = (string)secretDictionary[key];
-                if (configDictionary != null && configDictionary.ContainsKey(key))
+                var value = secretDictionary[key];
+                if (configDictionary != null)
                 {
-                    configDictionary[key] = value;
+                    if (configDictionary.ContainsKey(key))
+                    {
+                        configDictionary[key] = value;
+                    }
+                    else
+                    {
+                        configDictionary.Add(key, value);
+                    }
                 }
+
+
+
             }
-
             var result = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(configDictionary));
-            if (result != null)
-                return result;
-            else
-                return configurationObject;
+
+            return result!;
         }
-
-
-        // public static async Task<Dictionary<string, object>> ReadSecretAsync<T>(T ConfigObject, string MointPoint,
-        //     string Path) where T : class
-        // {
-        //     Secret<SecretData> secretValue = await vaultClient.V1.Secrets.KeyValue.V2
-        //                        .ReadSecretAsync(path: Path, mountPoint: MointPoint);
-
-        //     var configDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-        //         JsonConvert.SerializeObject(ConfigObject)
-        //     );
-        //     Dictionary<string, object> secretDictionary = new Dictionary<string, object>(secretValue.Data.Data);
-
-        //     //Get all the keys from vault and replace their values in the main configuration file object
-        //     foreach (string key in secretDictionary.Keys)
-        //     {
-        //         string value = (string)secretDictionary[key];
-        //         if (configDictionary != null && configDictionary.ContainsKey(key))
-        //         {
-        //             configDictionary[key] = value;
-        //         }
-        //     }
-
-        //     return secretDictionary;
-        // }
     }
 }
