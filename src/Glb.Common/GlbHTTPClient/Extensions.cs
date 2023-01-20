@@ -28,9 +28,8 @@ public static class Extensions
         {
             return services;
         }
-        services.AddHttpClient<T>(c =>
+        services.AddHttpClient<T>((c) =>
         {
-
             c.BaseAddress = new Uri(glbHttpClientSettings.BaseAddress);
         })
 
