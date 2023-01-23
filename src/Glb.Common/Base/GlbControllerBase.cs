@@ -158,6 +158,23 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         return base.Forbid();
     }
 
+    public ObjectResult StatusCode(string message, int statusCode, object? value)
+    {
+        return base.StatusCode(statusCode, new ResponseBase
+        {
+            Status = statusCode,
+            Message = message,
+            Data = value
+        });
+    }
+    public override ObjectResult StatusCode(int statusCode, object? value)
+    {
+        return base.StatusCode(statusCode, new ResponseBase
+        {
+            Status = statusCode,
+            Data = value
+        });
+    }
     public new OkObjectResult Ok()
     {
         return base.Ok(new ResponseBase
