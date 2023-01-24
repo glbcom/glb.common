@@ -109,6 +109,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         }
 
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public new NotFoundResult NotFound(object? value)
     {
         if (CurrentUser == null)
@@ -122,6 +123,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
         return base.NotFound();
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public override NotFoundResult NotFound()
     {
         if (CurrentUser != null)
@@ -131,6 +133,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
         return base.NotFound();
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public new BadRequestResult BadRequest(object? value)
     {
         if (CurrentUser == null)
@@ -144,6 +147,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
         return base.BadRequest();
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public ForbidResult Forbid(object? value)
     {
         if (CurrentUser == null)
@@ -157,7 +161,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
         return base.Forbid();
     }
-
+    [ApiExplorerSettings(IgnoreApi = true)]
     public ObjectResult StatusCode(string message, int statusCode, object? value)
     {
         return base.StatusCode(statusCode, new ResponseBase
@@ -175,6 +179,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
             Data = value
         });
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public new OkObjectResult Ok()
     {
         return base.Ok(new ResponseBase
@@ -182,7 +187,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
             Status = (int)HttpStatusCode.OK
         });
     }
-
+    [ApiExplorerSettings(IgnoreApi = true)]
     public OkObjectResult Ok(string message, Object? value)
     {
 
@@ -194,6 +199,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         });
 
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public override OkObjectResult Ok(Object? value)
     {
         if (value is string)
@@ -210,6 +216,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
             Data = value
         });
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? value)
     {
         return base.CreatedAtAction(actionName, new ResponseBase
@@ -218,6 +225,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
             Data = value
         });
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? routValues, Object? value)
     {
         return base.CreatedAtAction(actionName, routValues, new ResponseBase
@@ -226,6 +234,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
             Data = value
         });
     }
+    [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, string? controllerName, Object? routValues, Object? value)
     {
         return base.CreatedAtAction(actionName, controllerName, routValues, new ResponseBase
