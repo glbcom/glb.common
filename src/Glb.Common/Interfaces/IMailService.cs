@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Glb.Common.Entities;
 
-namespace Glb.Common.Inerfaces
+namespace Glb.Common.Interfaces
 {
     public interface IMailService
     {

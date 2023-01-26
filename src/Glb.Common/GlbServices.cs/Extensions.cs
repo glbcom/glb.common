@@ -1,4 +1,4 @@
-using Glb.Common.Inerfaces;
+using Glb.Common.Interfaces;
 using Glb.Common.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,4 +12,11 @@ public static class Extensions
         services.AddTransient<IMailService, MailService>();
         return services;
     }
+    public static IServiceCollection AddSMS_Service(this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<SMS_Settings>(config.GetSection(nameof(SMS_Settings)));
+        services.AddTransient<ISMS_Service, SMS_Service>();
+        return services;
+    }
+
 }

@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Glb.Common.Entities;
-using Glb.Common.Inerfaces;
+using Glb.Common.Interfaces;
 using Glb.Common.Settings;
 using Microsoft.Extensions.Options;
 using MimeKit;

@@ -1,6 +1,0 @@
-namespace Glb.Common.Settings;
-public class SMSSettings
-{
-    public string? Username {get; set;}
-    public string? Password {get; set;}
-}

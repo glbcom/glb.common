@@ -12,9 +12,8 @@ using Polly.Timeout;
 namespace Glb.Common.GlbHttpClient;
 public static class Extensions
 {
-
     public static IServiceCollection AddGlbHttpClient<T>(
-               this IServiceCollection services, Action<HttpClient> configureClient, IConfiguration config, String clientName)
+            this IServiceCollection services, Action<HttpClient> configureClient, IConfiguration config, String clientName)
                where T : class
     {
         //System.Action<System.IServiceProvider, System.Net.Http.HttpClient> configureClient
