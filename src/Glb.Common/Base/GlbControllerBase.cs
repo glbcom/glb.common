@@ -109,6 +109,29 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         }
 
     }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public ObjectResult StatusCode(string message, int statusCode, object? value)
+    {
+        return base.StatusCode(statusCode, new ResponseBase
+        {
+            Status = statusCode,
+            Message = message,
+            Data = value
+        });
+    }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public override ObjectResult StatusCode(int statusCode, object? value)
+    {
+        return base.StatusCode(statusCode, new ResponseBase
+        {
+            Status = statusCode,
+            Data = value
+        });
+    }
+
+    #region Bad Requests Sections
     [ApiExplorerSettings(IgnoreApi = true)]
     public new NotFoundResult NotFound(object? value)
     {
@@ -133,6 +156,17 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
         return base.NotFound();
     }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public override BadRequestResult BadRequest()
+    {
+        if (CurrentUser != null)
+        {
+            logger.LogError("Bad Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
+        }
+        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        return base.BadRequest();
+    }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new BadRequestResult BadRequest(object? value)
     {
@@ -146,6 +180,17 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         }
         HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
         return base.BadRequest();
+    }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public override ForbidResult Forbid()
+    {
+        if (CurrentUser != null)
+        {
+            logger.LogError("Unauthorized Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
+        }
+        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        return base.Forbid();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public ForbidResult Forbid(object? value)
@@ -161,24 +206,59 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
         return base.Forbid();
     }
+
     [ApiExplorerSettings(IgnoreApi = true)]
-    public ObjectResult StatusCode(string message, int statusCode, object? value)
+    public override ConflictResult Conflict()
     {
-        return base.StatusCode(statusCode, new ResponseBase
+        if (CurrentUser != null)
         {
-            Status = statusCode,
-            Message = message,
-            Data = value
-        });
+            logger.LogError("Conflict Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
+        }
+        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        return base.Conflict();
     }
-    public override ObjectResult StatusCode(int statusCode, object? value)
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public new ConflictResult Conflict(object? value)
     {
-        return base.StatusCode(statusCode, new ResponseBase
+        if (CurrentUser == null)
         {
-            Status = statusCode,
-            Data = value
-        });
+            logger.LogError("{0}", value);
+        }
+        else
+        {
+            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
+        }
+        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        return base.Conflict();
     }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public override UnauthorizedResult Unauthorized()
+    {
+        if (CurrentUser != null)
+        {
+            logger.LogError("Conflict Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
+        }
+        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        return base.Unauthorized();
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public new UnauthorizedResult Unauthorized(object? value)
+    {
+        if (CurrentUser == null)
+        {
+            logger.LogError("{0}", value);
+        }
+        else
+        {
+            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
+        }
+        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        return base.Unauthorized();
+    }
+    #endregion
+
+    #region  Success Requests Sections
     [ApiExplorerSettings(IgnoreApi = true)]
     public new OkObjectResult Ok()
     {
@@ -217,6 +297,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         });
     }
     [ApiExplorerSettings(IgnoreApi = true)]
+
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? value)
     {
         return base.CreatedAtAction(actionName, new ResponseBase
@@ -243,5 +324,5 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
             Data = value
         });
     }
-
+    #endregion
 }
