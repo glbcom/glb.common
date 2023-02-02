@@ -12,7 +12,7 @@ public static class Extenstion
     public static IServiceCollection AddGlbProblemDetails(this IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
-        var logger = serviceProvider.GetService<ILogger>();
+        var logger = serviceProvider.GetService<ILogger<ControllerBase>>();
 
         services.AddProblemDetails(options =>
 
@@ -20,16 +20,16 @@ public static class Extenstion
     {
         if (logger != null)
         {
-
+            logger.LogError("there is a logger");
         }
-
         var gblProblemDetails = context.HttpContext.Features.Get<GlbProblemDetails>();
         if (gblProblemDetails != null)
         {
             if (logger != null && context.ProblemDetails.Status >=
                 (int)HttpStatusCode.InternalServerError)
             {
-                logger.LogError("exception error code:{0}", context.ProblemDetails.Status);
+
+                logger.LogError("Exception raised Code:{0} Message:{1}", context.ProblemDetails.Status, context.ProblemDetails.Detail != null ? context.ProblemDetails.Detail : "No Message");
             };
             context.ProblemDetails.Detail = gblProblemDetails.Detail;
             context.ProblemDetails.Extensions.Add("userId", gblProblemDetails.UserId);
