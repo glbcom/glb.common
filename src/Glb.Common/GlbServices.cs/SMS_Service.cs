@@ -7,6 +7,7 @@ using Glb.Common.Entities.Responses;
 using Glb.Common.Settings;
 using Microsoft.Extensions.Options;
 using System.Net.Http;
+using System.Collections.Generic;
 
 namespace Glb.Common.GlbServices
 {
@@ -201,5 +202,33 @@ namespace Glb.Common.GlbServices
             }
         }
     }
-    
+   
+   public partial class Extensions
+   {
+     #region  "MobileNumber"
+     public static string? ToShortMobileNumber(this string MobileNumber)
+    {
+        List<string> MobileCodes = new List<string>() { "3", "70", "71", "76", "78", "79", "81" };
+        string mobilenumber = MobileNumber;
+        mobilenumber = System.Text.RegularExpressions.Regex.Replace(MobileNumber, "[^0-9]", "");
+        if (mobilenumber.Length < 7)
+            return null;
+        string BaseNumber = mobilenumber.Substring(mobilenumber.Length - 6);
+        mobilenumber = mobilenumber.Replace(BaseNumber, "");
+        string? Code = MobileCodes.Where(_code => mobilenumber.EndsWith(_code)).FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(Code))
+            return null;
+        Code = Code.PadLeft(2, '0');
+        mobilenumber = Code + BaseNumber;
+        return mobilenumber;
+    }
+    public static string? ToLongMobileNumber(this string MobileNumber)
+    {
+        string? shortmobilenumber = ToShortMobileNumber(MobileNumber);
+        if (!string.IsNullOrWhiteSpace(shortmobilenumber))
+            return "+961" + int.Parse(shortmobilenumber).ToString();
+        return null;
+    }
+    #endregion
+   }
 }
