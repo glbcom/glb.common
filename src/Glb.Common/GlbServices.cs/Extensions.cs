@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Glb.Common.GlbServices;
-public static class Extensions
+public static partial class Extensions
 {
     public static IServiceCollection AddMailService(this IServiceCollection services, IConfiguration config)
     {
