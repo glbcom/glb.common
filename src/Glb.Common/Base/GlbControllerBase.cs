@@ -29,6 +29,22 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         return User.IsInRole(role);
     }
 
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public Guid? ImpersonatedUserId(Guid? DtoUserId)
+    {
+        if(CurrentUserIsInRole(Roles.Admin) && DtoUserId !=null){
+            return DtoUserId;
+        }
+        else{
+            if(CurrentUser != null){
+                return CurrentUser.Id;
+            }
+            else{
+                return null;
+            }
+        }
+    }
+
     public Entities.GlbApplicationUser? CurrentUser
     {
         get
@@ -326,20 +342,4 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
         });
     }
     #endregion
-
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public Guid? ImpersonatedUserId(Guid? DtoUserId)
-    {
-        if(CurrentUserIsInRole(Roles.Admin) && DtoUserId !=null){
-            return DtoUserId;
-        }
-        else{
-            if(CurrentUser != null){
-                return CurrentUser.Id;
-            }
-            else{
-                return null;
-            }
-        }
-    }
 }
