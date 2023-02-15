@@ -328,7 +328,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
     #endregion
 
     [ApiExplorerSettings(IgnoreApi = true)]
-    public Guid? ImpersonatingUserId(Guid? DtoUserId)
+    public Guid? ImpersonatedUserId(Guid? DtoUserId)
     {
         if(CurrentUserIsInRole(Roles.Admin) && DtoUserId !=null){
             return DtoUserId;
