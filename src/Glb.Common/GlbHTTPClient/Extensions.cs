@@ -84,5 +84,5 @@ public static class Extensions
         return services.AddGlbHttpClient<T>(configureClient => { configureClient = httpClient; }, config, clientName);
 
     }
-
+   
 }
