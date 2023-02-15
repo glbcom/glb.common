@@ -1,5 +1,7 @@
+using System;
 using System.Net;
 using Glb.Common.Base;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,27 +19,30 @@ public static class Extenstion
         services.AddProblemDetails(options =>
 
         options.CustomizeProblemDetails = (context) =>
-    {
-        if (logger != null)
         {
-            logger.LogError("there is a logger");
-        }
-        var gblProblemDetails = context.HttpContext.Features.Get<GlbProblemDetails>();
-        if (gblProblemDetails != null)
-        {
-            if (logger != null && context.ProblemDetails.Status >=
-                (int)HttpStatusCode.InternalServerError)
+            var exception = context.HttpContext.Features.Get<DivideByZeroException>();
+            var gblProblemDetails = context.HttpContext.Features.Get<GlbProblemDetails>();
+
+            // logger!.LogError($"divide by zero exception is null: {context.HttpContext.Features.Get<DivideByZeroException>() == null}");
+            // logger!.LogError($"Exception is null: {context.HttpContext.Features.Get<Exception>() == null}");
+            // logger!.LogError($"problem details is null: {gblProblemDetails == null}");
+
+            if (gblProblemDetails != null)
             {
+                context.ProblemDetails.Detail = gblProblemDetails.Detail;
+                context.ProblemDetails.Extensions.Add("userId", gblProblemDetails.UserId);
+                context.ProblemDetails.Extensions.Add("compId", gblProblemDetails.CompId);
+                context.ProblemDetails.Instance = gblProblemDetails.Instance;
+            }
+            if (logger != null)
+            {
+                if (exception != null)
+                {
+                    logger.LogError("Exception:{0}", exception.Message);
+                }
 
-                logger.LogError("Exception raised Code:{0} Message:{1}", context.ProblemDetails.Status, context.ProblemDetails.Detail != null ? context.ProblemDetails.Detail : "No Message");
             };
-            context.ProblemDetails.Detail = gblProblemDetails.Detail;
-            context.ProblemDetails.Extensions.Add("userId", gblProblemDetails.UserId);
-            context.ProblemDetails.Extensions.Add("compId", gblProblemDetails.CompId);
-            context.ProblemDetails.Instance = gblProblemDetails.Instance;
         }
-
-    }
     );
 
         return services;
