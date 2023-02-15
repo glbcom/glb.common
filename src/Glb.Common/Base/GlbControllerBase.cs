@@ -30,7 +30,7 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
-    public bool HasAdminPriveledge()
+    public bool HasAdminPrivilege()
     {
         return User.IsInRole(Roles.Admin);
     }
