@@ -28,6 +28,13 @@ public abstract class GlbControllerBase<T> : ControllerBase where T : Controller
 
         return User.IsInRole(role);
     }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public bool HasAdminPrivilege()
+    {
+        return User.IsInRole(Roles.Admin);
+    }
+
     public Entities.GlbApplicationUser? CurrentUser
     {
         get
