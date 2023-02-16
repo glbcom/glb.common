@@ -37,33 +37,6 @@ public static class Extenstion
             options.Filters.Add(new GlbExceptionFilter(logger));
         });
 
-        options.CustomizeProblemDetails = (context) =>
-        {
-            var exception = context.HttpContext.Features.Get<DivideByZeroException>();
-            var gblProblemDetails = context.HttpContext.Features.Get<GlbProblemDetails>();
-
-            // logger!.LogError($"divide by zero exception is null: {context.HttpContext.Features.Get<DivideByZeroException>() == null}");
-            // logger!.LogError($"Exception is null: {context.HttpContext.Features.Get<Exception>() == null}");
-            // logger!.LogError($"problem details is null: {gblProblemDetails == null}");
-
-            if (gblProblemDetails != null)
-            {
-                context.ProblemDetails.Detail = gblProblemDetails.Detail;
-                context.ProblemDetails.Extensions.Add("userId", gblProblemDetails.UserId);
-                context.ProblemDetails.Extensions.Add("compId", gblProblemDetails.CompId);
-                context.ProblemDetails.Instance = gblProblemDetails.Instance;
-            }
-            if (logger != null)
-            {
-                if (exception != null)
-                {
-                    logger.LogError("Exception:{0}", exception.Message);
-                }
-
-            };
-        }
-    );
-
         return services;
     }
 }
