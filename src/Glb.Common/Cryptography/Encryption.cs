@@ -20,4 +20,19 @@ public static class Encryption
             return hex;
         }
     }
+    public static string CalculateMD5(string strData)
+    {
+                var message = Encoding.UTF8.GetBytes(strData);
+        using (var alg = MD5.Create())
+        {
+            string hex = "";
+
+            var hashValue = alg.ComputeHash(message);
+            foreach (byte x in hashValue)
+            {
+                hex += string.Format("{0:x2}", x);
+            }
+            return hex;
+        }
+    }
 }
