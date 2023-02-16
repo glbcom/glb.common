@@ -15,30 +15,25 @@ public static class Extenstion
         var logger = serviceProvider.GetService<ILogger<ControllerBase>>();
 
         services.AddProblemDetails(options =>
+            options.CustomizeProblemDetails = (context) =>
+                {
+                    var gblProblemDetails = context.HttpContext.Features.Get<GlbProblemDetails>();
+                    if (gblProblemDetails != null)
+                    {
 
-        options.CustomizeProblemDetails = (context) =>
-    {
-        if (logger != null)
+                        context.ProblemDetails.Detail = gblProblemDetails.Detail;
+                        context.ProblemDetails.Extensions.Add("userId", gblProblemDetails.UserId);
+                        context.ProblemDetails.Extensions.Add("compId", gblProblemDetails.CompId);
+                        context.ProblemDetails.Instance = gblProblemDetails.Instance;
+                    }
+                }
+        );
+
+        services.AddControllers(options =>
         {
-            logger.LogError("there is a logger");
-        }
-        var gblProblemDetails = context.HttpContext.Features.Get<GlbProblemDetails>();
-        if (gblProblemDetails != null)
-        {
-            if (logger != null && context.ProblemDetails.Status >=
-                (int)HttpStatusCode.InternalServerError)
-            {
-
-                logger.LogError("Exception raised Code:{0} Message:{1}", context.ProblemDetails.Status, context.ProblemDetails.Detail != null ? context.ProblemDetails.Detail : "No Message");
-            };
-            context.ProblemDetails.Detail = gblProblemDetails.Detail;
-            context.ProblemDetails.Extensions.Add("userId", gblProblemDetails.UserId);
-            context.ProblemDetails.Extensions.Add("compId", gblProblemDetails.CompId);
-            context.ProblemDetails.Instance = gblProblemDetails.Instance;
-        }
-
-    }
-    );
+            options.SuppressAsyncSuffixInActionNames = false;
+            options.Filters.Add(new GlbExceptionFilter(logger));
+        });
 
         return services;
     }
