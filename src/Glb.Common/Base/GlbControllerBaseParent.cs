@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Glb.Common.Base;
-public abstract class GlbControllerBaseParent : ControllerBase
+public abstract class GlbMainControllerBase : ControllerBase
 {
     private Entities.GlbApplicationUser? _currentUser;
 
