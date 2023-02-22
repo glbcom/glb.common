@@ -1,8 +1,6 @@
 using Glb.Common.Entities;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Http;
 using Glb.Common.Base;
-using Glb.Common.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -11,7 +9,7 @@ namespace Glb.Common.ProblemDetails;
 
 public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
 {
-    private GlbControllerBaseParent? _controller { get; set; }
+    private GlbMainControllerBase? _controller { get; set; }
     private ILogger<ControllerBase>? _logger;
 
     public GlbExceptionFilter(ILogger<ControllerBase>? logger)
@@ -25,7 +23,7 @@ public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
 
     public void OnActionExecuting(ActionExecutingContext context)
     {
-        this._controller = (GlbControllerBaseParent)context.Controller;
+        this._controller = (GlbMainControllerBase)context.Controller;
     }
 
     public Task OnExceptionAsync(ExceptionContext context)
