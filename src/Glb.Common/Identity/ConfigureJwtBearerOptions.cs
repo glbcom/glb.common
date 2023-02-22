@@ -29,6 +29,7 @@ namespace Glb.Common.Identity
                 {
                     options.Authority = serviceSettings.Authority;
                     options.Audience = serviceSettings.ServiceName;
+                    options.RequireHttpsMetadata = serviceSettings.RequireHttpsMetadata;
                 }
 
                 options.MapInboundClaims = false;
