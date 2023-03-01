@@ -1,15 +1,15 @@
 namespace Glb.Common.Base;
-public class ResponseBase
+public class GlbResponseBase
 {
     public int Status { get; set; }
     public object? Data { get; set; }
     public string? Message { get; set; }
 
-    public ResponseBase()
+    public GlbResponseBase()
     {
 
     }
-    public ResponseBase(int status, object data)
+    public GlbResponseBase(int status, object data)
     {
         this.Status = status;
         this.Data = data;

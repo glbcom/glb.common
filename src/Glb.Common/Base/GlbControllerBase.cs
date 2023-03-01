@@ -23,7 +23,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public ObjectResult StatusCode(string message, int statusCode, object? value)
     {
-        return base.StatusCode(statusCode, new ResponseBase
+        return base.StatusCode(statusCode, new GlbResponseBase
         {
             Status = statusCode,
             Message = message,
@@ -34,7 +34,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public override ObjectResult StatusCode(int statusCode, object? value)
     {
-        return base.StatusCode(statusCode, new ResponseBase
+        return base.StatusCode(statusCode, new GlbResponseBase
         {
             Status = statusCode,
             Data = value
@@ -172,7 +172,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public new OkObjectResult Ok()
     {
-        return base.Ok(new ResponseBase
+        return base.Ok(new GlbResponseBase
         {
             Status = (int)HttpStatusCode.OK
         });
@@ -181,7 +181,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     public OkObjectResult Ok(string message, Object? value)
     {
 
-        return base.Ok(new ResponseBase
+        return base.Ok(new GlbResponseBase
         {
             Status = (int)HttpStatusCode.OK,
             Message = message,
@@ -194,13 +194,13 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     {
         if (value is string)
         {
-            return base.Ok(new ResponseBase
+            return base.Ok(new GlbResponseBase
             {
                 Status = (int)HttpStatusCode.OK,
                 Message = (string)value
             });
         }
-        return base.Ok(new ResponseBase
+        return base.Ok(new GlbResponseBase
         {
             Status = (int)HttpStatusCode.OK,
             Data = value
@@ -210,7 +210,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
 
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? value)
     {
-        return base.CreatedAtAction(actionName, new ResponseBase
+        return base.CreatedAtAction(actionName, new GlbResponseBase
         {
             Status = (int)HttpStatusCode.Created,
             Data = value
@@ -219,7 +219,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? routValues, Object? value)
     {
-        return base.CreatedAtAction(actionName, routValues, new ResponseBase
+        return base.CreatedAtAction(actionName, routValues, new GlbResponseBase
         {
             Status = (int)HttpStatusCode.Created,
             Data = value
@@ -228,7 +228,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, string? controllerName, Object? routValues, Object? value)
     {
-        return base.CreatedAtAction(actionName, controllerName, routValues, new ResponseBase
+        return base.CreatedAtAction(actionName, controllerName, routValues, new GlbResponseBase
         {
             Status = (int)HttpStatusCode.Created,
             Data = value
