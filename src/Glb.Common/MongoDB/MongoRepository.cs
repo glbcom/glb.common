@@ -40,7 +40,7 @@ namespace Glb.Common.MongoDB
             return await dbCollection.Find(filter).FirstOrDefaultAsync();
         }
 
-        public async Task CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             if (entity == null)
             {
@@ -48,9 +48,10 @@ namespace Glb.Common.MongoDB
             }
 
             await dbCollection.InsertOneAsync(entity);
+            return entity;
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             if (entity == null)
             {
@@ -59,6 +60,7 @@ namespace Glb.Common.MongoDB
 
             FilterDefinition<T> filter = filterBuilder.Eq(existingEntity => existingEntity.Id, entity.Id);
             await dbCollection.ReplaceOneAsync(filter, entity);
+            return entity;
         }
 
         public async Task SaveAll(List<T> lstEntity)
