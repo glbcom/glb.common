@@ -8,11 +8,11 @@ public static class Helper
 {
     public static ByteArrayContent PrepareRequestBody(object RequestBody, string? mediaType = null)
     {
-        JsonSerializerSettings microsoftDateFormatSettings = new JsonSerializerSettings
+        JsonSerializerSettings dateFormatSettings = new JsonSerializerSettings
         {
-            DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
+            DateFormatHandling = DateFormatHandling.IsoDateFormat
         };
-        var signatureContent = JsonConvert.SerializeObject(RequestBody, microsoftDateFormatSettings);
+        var signatureContent = JsonConvert.SerializeObject(RequestBody, dateFormatSettings);
         //var signatureContent = JsonConvert.SerializeObject(RequestBody);
         var buffer = System.Text.Encoding.UTF8.GetBytes(signatureContent);
         var byteContent = new ByteArrayContent(buffer);
