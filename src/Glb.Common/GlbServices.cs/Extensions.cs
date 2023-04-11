@@ -1,3 +1,5 @@
+using System;
+using System.ComponentModel;
 using System.Linq;
 using Glb.Common.Interfaces;
 using Glb.Common.Settings;
@@ -45,6 +47,19 @@ public static class Extensions
             return "+961" + int.Parse(shortmobilenumber).ToString();
         return null;
     }
+    #endregion
+    #region "Enumeration"
+    public static string GetDescription(this Enum var)
+		{
+			try
+			{
+				return ((DescriptionAttribute)var.GetType().GetField(var.ToString()).GetCustomAttributes(true)[0]).Description;
+			}
+			catch 
+			{
+				return var.ToString();
+			}
+		}
     #endregion
 
 }
