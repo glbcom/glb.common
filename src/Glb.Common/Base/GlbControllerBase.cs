@@ -1,25 +1,97 @@
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net;
-using System.Security.Claims;
-using System.Text.Json;
-using Glb.Common.Identity;
 using Glb.Common.ProblemDetails;
+using Glb.Common.Settings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Glb.Common.Base;
 public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : ControllerBase
 {
+    #region Private methods
     private readonly ILogger<T> logger;
+    private readonly ServiceSettings? serviceSettings;
+    #region Logging
 
+    private void LogMessageWithValue(LogLevel logLevel, string message, params object?[] args)
+    {
+        string formattedMessage = $"{message} userId:{CurrentUser?.Id} compId:{CurrentUser?.ScopeCompId}";
+
+        switch (logLevel)
+        {
+            case LogLevel.Critical:
+                logger.LogCritical(formattedMessage, args);
+                break;
+            case LogLevel.Error:
+                logger.LogError(formattedMessage, args);
+                break;
+            case LogLevel.Warning:
+                logger.LogWarning(formattedMessage, args);
+                break;
+            case LogLevel.Debug:
+                logger.LogDebug(formattedMessage, args);
+                break;
+            case LogLevel.Information:
+                logger.LogInformation(formattedMessage, args);
+                break;
+            case LogLevel.Trace:
+                logger.LogTrace(formattedMessage, args);
+                break;
+        }
+        GlbProblemDetails glbProblemDetails = new GlbProblemDetails(args?.ToString(), Request.Path.Value, CurrentUser);
+        if (serviceSettings != null)
+        {
+            glbProblemDetails.ServiceName = serviceSettings.ServiceName;
+        }
+        HttpContext.Features.Set(glbProblemDetails);
+    }
+    #endregion
+    #endregion
+
+    #region Constructors
     protected GlbControllerBase(ILogger<T> logger)
     {
         this.logger = logger;
-    }
+        this.serviceSettings = null;
 
+    }
+    protected GlbControllerBase(ILogger<T> logger, IConfiguration configuration)
+    {
+        this.logger = logger;
+        this.serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>()!;
+    }
+    #endregion
+
+    #region Logging methods
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public void LogError(string message, params object?[] args)
+    {
+        LogMessageWithValue(LogLevel.Error, message, args);
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public void LogWarning(string message, params object?[] args)
+    {
+        LogMessageWithValue(LogLevel.Warning, message, args);
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public void LogInformation(string message, params object?[] args)
+    {
+        LogMessageWithValue(LogLevel.Information, message, args);
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public void LogDebug(string message, params object?[] args)
+    {
+        LogMessageWithValue(LogLevel.Debug, message, args);
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public void LogTrace(string message, params object?[] args)
+    {
+        LogMessageWithValue(LogLevel.Trace, message, args);
+    }
+    #endregion
+
+    #region StatusCode
     [ApiExplorerSettings(IgnoreApi = true)]
     public ObjectResult StatusCode(string message, int statusCode, object? value)
     {
@@ -40,130 +112,71 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             Data = value
         });
     }
+    #endregion
 
-    #region Bad Requests Sections
+    #region Not found and Bad Requests Sections
     [ApiExplorerSettings(IgnoreApi = true)]
     public new NotFoundResult NotFound(object? value)
     {
-        if (CurrentUser == null)
-        {
-            logger.LogError("{0}", value);
-        }
-        else
-        {
-            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        this.LogWarning("Not Found", value);
         return base.NotFound();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public override NotFoundResult NotFound()
     {
-        if (CurrentUser != null)
-        {
-            logger.LogError("Not found userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        this.LogWarning("Not Found", null);
         return base.NotFound();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override BadRequestResult BadRequest()
     {
-        if (CurrentUser != null)
-        {
-            logger.LogError("Bad Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        this.LogWarning("Bad Request", null);
         return base.BadRequest();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new BadRequestResult BadRequest(object? value)
     {
-        if (CurrentUser == null)
-        {
-            logger.LogError("{0}", value);
-        }
-        else
-        {
-            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        this.LogWarning("Bad Request", value);
         return base.BadRequest();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override ForbidResult Forbid()
     {
-        if (CurrentUser != null)
-        {
-            logger.LogError("Unauthorized Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        this.LogWarning("Forbid", null);
         return base.Forbid();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public ForbidResult Forbid(object? value)
     {
-        if (CurrentUser == null)
-        {
-            logger.LogError("{0}", value);
-        }
-        else
-        {
-            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        this.LogWarning("Forbid", value);
         return base.Forbid();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override ConflictResult Conflict()
     {
-        if (CurrentUser != null)
-        {
-            logger.LogError("Conflict Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        this.LogError("Conflict", null);
         return base.Conflict();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new ConflictResult Conflict(object? value)
     {
-        if (CurrentUser == null)
-        {
-            logger.LogError("{0}", value);
-        }
-        else
-        {
-            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        this.LogError("Conflict", value);
         return base.Conflict();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override UnauthorizedResult Unauthorized()
     {
-        if (CurrentUser != null)
-        {
-            logger.LogError("Conflict Request userId:{1} compId:{2}", CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails(null, Request.Path.Value, CurrentUser));
+        this.LogError("Unauthorized", null);
         return base.Unauthorized();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new UnauthorizedResult Unauthorized(object? value)
     {
-        if (CurrentUser == null)
-        {
-            logger.LogError("{0}", value);
-        }
-        else
-        {
-            logger.LogError("{0} userId:{1} compId:{2}", value, CurrentUser.Id, CurrentUser.ScopeCompId);
-        }
-        HttpContext.Features.Set(new GlbProblemDetails($"{value}", Request.Path.Value, CurrentUser));
+        this.LogError("Unauthorized", value);
         return base.Unauthorized();
     }
     #endregion
@@ -181,6 +194,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     public OkObjectResult Ok(string message, Object? value)
     {
 
+        LogInformation("Ok", value);
         return base.Ok(new GlbResponseBase
         {
             Status = (int)HttpStatusCode.OK,

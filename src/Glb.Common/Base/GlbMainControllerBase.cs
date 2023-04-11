@@ -2,13 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net;
 using System.Security.Claims;
-using System.Text.Json;
 using Glb.Common.Identity;
-using Glb.Common.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Glb.Common.Base;
 public abstract class GlbMainControllerBase : ControllerBase
@@ -123,25 +119,4 @@ public abstract class GlbMainControllerBase : ControllerBase
         }
 
     }
-
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    // public ObjectResult StatusCode(string message, int statusCode, object? value)
-    // {
-    //     return base.StatusCode(statusCode, new ResponseBase
-    //     {
-    //         Status = statusCode,
-    //         Message = message,
-    //         Data = value
-    //     });
-    // }
-
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    // public override ObjectResult StatusCode(int statusCode, object? value)
-    // {
-    //     return base.StatusCode(statusCode, new ResponseBase
-    //     {
-    //         Status = statusCode,
-    //         Data = value
-    //     });
-    // }
 }

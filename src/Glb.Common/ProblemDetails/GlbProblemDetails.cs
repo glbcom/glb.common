@@ -7,6 +7,7 @@ public class GlbProblemDetails
     public Guid UserId { get; set; }
     public string? CompId { get; set; }
     public string? Detail { get; set; }
+    public string? ServiceName { get; set; }
 
     public string Status { get; set; }
     public string? Instance { get; set; }
