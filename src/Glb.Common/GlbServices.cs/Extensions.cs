@@ -49,17 +49,20 @@ public static class Extensions
     }
     #endregion
     #region "Enumeration"
-    public static string GetDescription(this Enum var)
-		{
-			try
-			{
-				return ((DescriptionAttribute)var.GetType().GetField(var.ToString()).GetCustomAttributes(true)[0]).Description;
-			}
-			catch 
-			{
-				return var.ToString();
-			}
-		}
+    public static string GetDescription(this Enum value)
+    {
+        var field = value.GetType().GetField(value.ToString());
+        if (field != null)
+        {
+            var attribute = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
+            return attribute != null ? attribute.Description : value.ToString();
+        }
+        else
+        {
+            return value.ToString();
+        }
+    }
+
     #endregion
 
 }

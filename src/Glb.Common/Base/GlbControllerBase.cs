@@ -16,34 +16,73 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
 
     private void LogMessageWithValue(LogLevel logLevel, string message, params object?[] args)
     {
-        string formattedMessage = $"{message} userId:{CurrentUser?.Id} compId:{CurrentUser?.ScopeCompId}";
+
+        string problemDetailString = message;
+        if (args != null && args.Length > 0)
+        {
+            // Get all text between curly braces
+            System.Text.RegularExpressions.MatchCollection matches = System.Text.RegularExpressions.Regex.Matches(problemDetailString, @"\{.*?\}");
+
+            if (matches.Count > 0 && matches.Count <= args.Length)
+            {
+                // Replace the text between curly braces with the values in the args array
+                for (int i = 0; i < matches.Count; i++)
+                {
+
+                    problemDetailString = problemDetailString.Replace(matches[i].Value, args[i]?.ToString());
+                }
+            }
+        }
+
+        message = message + " serviceName:{serviceName} userId:{userId} compId:{compId}";
+
+        // Add the original args to the newArgs array first
+        int argsLength = args == null ? 0 : args.Length;
+        object?[] newArgs = new object?[argsLength + 3];
+        if (args != null)
+        {
+            for (int i = 0; i < argsLength; i++)
+            {
+                newArgs[i] = args[i];
+            }
+        }
+
+
+        // Add the three new parameters at the end
+        newArgs[argsLength] = serviceSettings == null ? "" : serviceSettings.ServiceName;
+        newArgs[argsLength + 1] = CurrentUser?.Id;
+        newArgs[argsLength + 2] = CurrentUser?.ScopeCompId;
+        args = newArgs;
+
 
         switch (logLevel)
         {
             case LogLevel.Critical:
-                logger.LogCritical(formattedMessage, args);
+                logger.LogCritical(message, args);
                 break;
             case LogLevel.Error:
-                logger.LogError(formattedMessage, args);
+                logger.LogError(message, args);
                 break;
             case LogLevel.Warning:
-                logger.LogWarning(formattedMessage, args);
+                logger.LogWarning(message, args);
                 break;
             case LogLevel.Debug:
-                logger.LogDebug(formattedMessage, args);
+                logger.LogDebug(message, args);
                 break;
             case LogLevel.Information:
-                logger.LogInformation(formattedMessage, args);
+                logger.LogInformation(message, args);
                 break;
             case LogLevel.Trace:
-                logger.LogTrace(formattedMessage, args);
+                logger.LogTrace(message, args);
                 break;
         }
-        GlbProblemDetails glbProblemDetails = new GlbProblemDetails(args?.ToString(), Request.Path.Value, CurrentUser);
+
+        GlbProblemDetails glbProblemDetails = new GlbProblemDetails(problemDetailString, Request.Path.Value, CurrentUser);
         if (serviceSettings != null)
         {
             glbProblemDetails.ServiceName = serviceSettings.ServiceName;
         }
+        glbProblemDetails.Status = logLevel.ToString();
         HttpContext.Features.Set(glbProblemDetails);
     }
     #endregion
@@ -118,65 +157,64 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public new NotFoundResult NotFound(object? value)
     {
-        this.LogWarning("Not Found", value);
+        this.LogWarning("Not Found :{0}", value);
         return base.NotFound();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public override NotFoundResult NotFound()
     {
-        this.LogWarning("Not Found", null);
+        this.LogWarning("Not Found");
         return base.NotFound();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override BadRequestResult BadRequest()
     {
-        this.LogWarning("Bad Request", null);
+        this.LogWarning("Bad Request");
         return base.BadRequest();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new BadRequestResult BadRequest(object? value)
     {
-        this.LogWarning("Bad Request", value);
+        this.LogWarning("Bad Request :{0}", value);
         return base.BadRequest();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override ForbidResult Forbid()
     {
-        this.LogWarning("Forbid", null);
+        this.LogWarning("Forbid");
         return base.Forbid();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public ForbidResult Forbid(object? value)
     {
-        this.LogWarning("Forbid", value);
+        this.LogWarning("Forbid :{0}", value);
         return base.Forbid();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override ConflictResult Conflict()
     {
-        this.LogError("Conflict", null);
         return base.Conflict();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new ConflictResult Conflict(object? value)
     {
-        this.LogError("Conflict", value);
+        this.LogError("Conflict :{0}", value);
         return base.Conflict();
     }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override UnauthorizedResult Unauthorized()
     {
-        this.LogError("Unauthorized", null);
+        this.LogError("Unauthorized");
         return base.Unauthorized();
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public new UnauthorizedResult Unauthorized(object? value)
     {
-        this.LogError("Unauthorized", value);
+        this.LogError("Unauthorized :{0}", value);
         return base.Unauthorized();
     }
     #endregion
@@ -194,7 +232,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     public OkObjectResult Ok(string message, Object? value)
     {
 
-        LogInformation("Ok", value);
+        LogInformation("Ok :{0}", value);
         return base.Ok(new GlbResponseBase
         {
             Status = (int)HttpStatusCode.OK,

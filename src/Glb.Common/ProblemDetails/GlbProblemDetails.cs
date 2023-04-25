@@ -8,7 +8,6 @@ public class GlbProblemDetails
     public string? CompId { get; set; }
     public string? Detail { get; set; }
     public string? ServiceName { get; set; }
-
     public string Status { get; set; }
     public string? Instance { get; set; }
     public GlbProblemDetails(string? detail = null, string? instance = null, GlbApplicationUser? user = null)
@@ -20,6 +19,6 @@ public class GlbProblemDetails
         }
         Instance = instance;
         Detail = detail;
-        Status = "failed";
+        Status = "error";
     }
 }

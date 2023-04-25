@@ -30,7 +30,7 @@ public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
     {
         if (_controller != null)
         {
-            var error = new GlbProblemDetails($"{context.Exception.Message}", null, _controller.CurrentUser);
+            var error = new GlbProblemDetails($"{context.Exception.Message}", context.HttpContext.Request.Path.Value, _controller.CurrentUser);
             context.HttpContext.Features.Set(error);
 
             GlbApplicationUser? user = _controller.CurrentUser;
@@ -38,7 +38,7 @@ public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
             {
                 if (user != null)
                 {
-                    _logger.LogError("Exception Occured: " + context.Exception.Message + " userId: {0} and compId: {1}", user.Id, user.ScopeCompId);
+                    _logger.LogError("Exception Occured: " + context.Exception.Message + " userId: {userId} and compId: {compId}", user.Id, user.ScopeCompId);
                 }
                 else
                 {
