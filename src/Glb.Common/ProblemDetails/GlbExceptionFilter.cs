@@ -4,6 +4,8 @@ using Glb.Common.Base;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Glb.Common.Settings;
 
 namespace Glb.Common.ProblemDetails;
 
@@ -11,10 +13,12 @@ public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
 {
     private GlbMainControllerBase? _controller { get; set; }
     private ILogger<ControllerBase>? _logger;
+    private IConfiguration? _config;
 
-    public GlbExceptionFilter(ILogger<ControllerBase>? logger)
+    public GlbExceptionFilter(ILogger<ControllerBase>? logger, IConfiguration? config)
     {
         _logger = logger;
+        _config = config;
     }
 
     public void OnActionExecuted(ActionExecutedContext context)
@@ -34,15 +38,18 @@ public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
             context.HttpContext.Features.Set(error);
 
             GlbApplicationUser? user = _controller.CurrentUser;
+
+
             if (_logger != null)
             {
+                var serviceSettings = _config?.GetSection("ServiceSettings").Get<ServiceSettings>();
                 if (user != null)
                 {
-                    _logger.LogError("Exception Occured: " + context.Exception.Message + " userId: {userId} and compId: {compId}", user.Id, user.ScopeCompId);
+                    _logger.LogError("Exception Occured: " + context.Exception.Message + "serviceName:{serviceName} userId: {userId} compId: {compId}", user.Id, user.ScopeCompId, serviceSettings?.ServiceName);
                 }
                 else
                 {
-                    _logger.LogError("Exception Occured: " + context.Exception.Message);
+                    _logger.LogError("Exception Occured: " + context.Exception.Message + "serviceName:{serviceName}", serviceSettings?.ServiceName);
                 }
 
             }
