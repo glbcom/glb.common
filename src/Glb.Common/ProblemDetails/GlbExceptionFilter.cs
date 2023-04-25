@@ -45,7 +45,7 @@ public class GlbExceptionFilter : IAsyncExceptionFilter, IActionFilter
                 var serviceSettings = _config?.GetSection("ServiceSettings").Get<ServiceSettings>();
                 if (user != null)
                 {
-                    _logger.LogError("Exception Occured: " + context.Exception.Message + "serviceName:{serviceName} userId: {userId} compId: {compId}", user.Id, user.ScopeCompId, serviceSettings?.ServiceName);
+                    _logger.LogError("Exception Occured: " + context.Exception.Message + "serviceName:{serviceName} userId: {userId} compId: {compId}", serviceSettings?.ServiceName, user.Id, user.ScopeCompId);
                 }
                 else
                 {
