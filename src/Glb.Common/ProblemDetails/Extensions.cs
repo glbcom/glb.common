@@ -47,7 +47,7 @@ public static class Extenstion
         services.AddControllers(options =>
         {
             options.SuppressAsyncSuffixInActionNames = false;
-            options.Filters.Add(new GlbExceptionFilter(logger));
+            options.Filters.Add(new GlbExceptionFilter(logger, configuration));
         });
 
         return services;
