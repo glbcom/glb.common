@@ -82,7 +82,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
         {
             glbProblemDetails.ServiceName = serviceSettings.ServiceName;
         }
-        glbProblemDetails.Status = logLevel.ToString();
+        glbProblemDetails.LogLevel = logLevel.ToString();
         HttpContext.Features.Set(glbProblemDetails);
     }
     #endregion
