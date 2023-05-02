@@ -4,6 +4,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Glb.Common.Settings;
+using System.Collections.Generic;
 
 namespace Glb.Common.MassTransit
 {
@@ -68,6 +69,60 @@ Action<IRetryConfigurator>? configureRetries = null)
 
             return services;
         }
+        public static IServiceCollection AddMassTransitWithSagaAndMongo<TStateMachine, TState>(
+            this IServiceCollection services,
+            IConfiguration config,
+            Action<IRetryConfigurator>? configureRetries = null,
+            IDictionary<Type, Uri>? endpointMappings = null
+            )
+            where TStateMachine : MassTransitStateMachine<TState>
+            where TState : class, SagaStateMachineInstance,ISagaVersion {
+            services.AddMassTransit(configure =>
+            {
+                configure.UsingMessageBroker(config, configureRetries);
+
+                configure.AddConsumers(Assembly.GetEntryAssembly());
+                configure.AddSagaStateMachine<TStateMachine, TState>(sagaConfigurator =>
+                {
+                    sagaConfigurator.UseInMemoryOutbox();
+                })
+                    .MongoDbRepository(r =>
+                    {
+                        var serviceSettings = config.GetSection(nameof(ServiceSettings))
+                                                           .Get<ServiceSettings>();
+                        var mongoSettings = config.GetSection(nameof(MongoDbSettings))
+                                                           .Get<MongoDbSettings>();
+                        if(mongoSettings!=null){
+                            r.Connection = mongoSettings.ConnectionString;
+                        }else{
+                            throw new Exception("MongoDbSettings is not configured");
+                        }
+                        if(serviceSettings!=null){
+                            r.DatabaseName = serviceSettings.ServiceName;
+                        }else{
+                            throw new Exception("ServiceSettings is not configured");
+                        }
+                    });
+                    // Map endpoint addresses dynamically based on the specified endpointMappings parameter
+                    if (endpointMappings != null)
+                    {
+                        foreach (var mapping in endpointMappings)
+                        {
+                            var messageType = mapping.Key;
+                            var endpointAddress = mapping.Value;
+
+                            // EndpointConvention.Map(messageType, endpointAddress);
+                        }
+                    }
+                    // var queueSettings = config.GetSection(nameof(QueueSettings))
+                    //                                        .Get<QueueSettings>();
+                    // EndpointConvention.Map<GrantItems>(new Uri(queueSettings.GrantItemsQueueAddress));
+                    // EndpointConvention.Map<DebitGil>(new Uri(queueSettings.DebitGilQueueAddress));
+                    // EndpointConvention.Map<SubtractItems>(new Uri(queueSettings.SubtractItemsQueueAddress));
+            });
+            return services;
+        }
+
 
         public static void UsingMessageBroker(
             this IBusRegistrationConfigurator configure,
