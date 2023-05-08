@@ -11,6 +11,10 @@ namespace Glb.Common.MongoDB
 {
     public static class Extensions
     {
+        private static string GetCollectionName<T>(string? collectionName=null) where T:IEntity
+        {
+            return collectionName==null? $"{char.ToLower(nameof(T)[0])}{nameof(T).Substring(1)}s":collectionName;
+        }
         public static IServiceCollection AddMongo(this IServiceCollection services)
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
@@ -43,7 +47,7 @@ namespace Glb.Common.MongoDB
             return services;
         }
 
-        public static IServiceCollection AddMongoRepository<T>(this IServiceCollection services, string collectionName)
+        public static IServiceCollection AddMongoRepository<T>(this IServiceCollection services, string? collectionName=null)
             where T : IEntity
         {
             services.AddSingleton<IRepository<T>>(serviceProvider =>
@@ -51,7 +55,8 @@ namespace Glb.Common.MongoDB
                 var database = serviceProvider.GetService<IMongoDatabase>();
                 if (database != null)
                 {
-                    return new MongoRepository<T>(database, collectionName);
+                    
+                    return new MongoRepository<T>(database, GetCollectionName<T>(collectionName));
                 }
                 else
                 {

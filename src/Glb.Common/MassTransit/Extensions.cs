@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Glb.Common.Settings;
 using System.Collections.Generic;
+using Glb.Common.Inerfaces;
 
 namespace Glb.Common.MassTransit
 {
@@ -73,7 +74,7 @@ Action<IRetryConfigurator>? configureRetries = null)
             this IServiceCollection services,
             IConfiguration config,
             Action<IRetryConfigurator>? configureRetries = null,
-            IDictionary<Type, Uri>? endpointMappings = null
+            Action<IBusRegistrationConfigurator>? endpointConfigurator = null
             )
             where TStateMachine : MassTransitStateMachine<TState>
             where TState : class, SagaStateMachineInstance,ISagaVersion {
@@ -102,23 +103,9 @@ Action<IRetryConfigurator>? configureRetries = null)
                         }else{
                             throw new Exception("ServiceSettings is not configured");
                         }
+                        
                     });
-                    // Map endpoint addresses dynamically based on the specified endpointMappings parameter
-                    if (endpointMappings != null)
-                    {
-                        foreach (var mapping in endpointMappings)
-                        {
-                            var messageType = mapping.Key;
-                            var endpointAddress = mapping.Value;
-
-                            // EndpointConvention.Map(messageType, endpointAddress);
-                        }
-                    }
-                    // var queueSettings = config.GetSection(nameof(QueueSettings))
-                    //                                        .Get<QueueSettings>();
-                    // EndpointConvention.Map<GrantItems>(new Uri(queueSettings.GrantItemsQueueAddress));
-                    // EndpointConvention.Map<DebitGil>(new Uri(queueSettings.DebitGilQueueAddress));
-                    // EndpointConvention.Map<SubtractItems>(new Uri(queueSettings.SubtractItemsQueueAddress));
+                    endpointConfigurator?.Invoke(configure);
             });
             return services;
         }
