@@ -13,7 +13,7 @@ namespace Glb.Common.MongoDB
     {
         private static string GetCollectionName<T>(string? collectionName=null) where T:IEntity
         {
-            return collectionName==null? $"{char.ToLower(nameof(T)[0])}{nameof(T).Substring(1)}s":collectionName;
+            return collectionName==null? $"{char.ToLower(typeof(T).Name[0])}{typeof(T).Name.Substring(1)}s":collectionName;
         }
         public static IServiceCollection AddMongo(this IServiceCollection services)
         {
