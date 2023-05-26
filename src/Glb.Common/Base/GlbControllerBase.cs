@@ -233,14 +233,30 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     [ApiExplorerSettings(IgnoreApi = true)]
     public OkObjectResult Ok(string message, Object? value)
     {
+        int statusCode = (int)HttpStatusCode.OK;
+        if (value != null && value is string) statusCode = (int)HttpStatusCode.Redirect;
 
-        LogInformation("Ok :{0}", value);
-        return base.Ok(new GlbResponseBase
+        if (statusCode == (int)HttpStatusCode.Redirect) LogInformation("Redirect :{0}", value);
+        else LogInformation("Ok :{0}", value);
+
+        if (statusCode == (int)HttpStatusCode.Redirect)
         {
-            Status = (int)HttpStatusCode.OK,
-            Message = message,
-            Data = value
-        });
+            return base.Ok(new GlbResponseBase
+            {
+                Status = statusCode,
+                Message = message,
+                RedirectAction = value != null ? (string)value : null
+            });
+        }
+        else
+        {
+            return base.Ok(new GlbResponseBase
+            {
+                Status = statusCode,
+                Message = message,
+                Data = value
+            });
+        }
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public OkObjectResult Ok(string message, Object? value, string redirectAction)
@@ -248,7 +264,9 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
         int statusCode = (int)HttpStatusCode.OK;
         if (!string.IsNullOrWhiteSpace(redirectAction)) statusCode = (int)HttpStatusCode.Redirect;
 
-        LogInformation("Ok :{0}", value);
+        if (statusCode == (int)HttpStatusCode.Redirect) LogInformation("Redirect :{0}", value);
+        else LogInformation("Ok :{0}", value);
+
         return base.Ok(new GlbResponseBase
         {
             Status = statusCode,
@@ -274,44 +292,6 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             Data = value
         });
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public OkObjectResult Ok(Object? value, string redirectAction)
-    {
-        int statucCode = (int)HttpStatusCode.OK;
-        if (!string.IsNullOrWhiteSpace(redirectAction)) statucCode = (int)HttpStatusCode.Redirect;
-
-        if (value is string)
-        {
-            return base.Ok(new GlbResponseBase
-            {
-                Status = statucCode,
-                Message = (string)value,
-                RedirectAction = !string.IsNullOrWhiteSpace(redirectAction) ? redirectAction : null
-            });
-        }
-        return base.Ok(new GlbResponseBase
-        {
-            Status = statucCode,
-            Data = value,
-            RedirectAction = !string.IsNullOrWhiteSpace(redirectAction) ? redirectAction : null
-        });
-    }
-
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    // public IActionResult RedirectToObject()
-    // {
-    //     var returnObj = new GlbResponseBase();
-
-    //     var result = new ObjectResult(returnObj)
-    //     {
-    //         StatusCode = (int)HttpStatusCode.Redirect
-    //     };
-
-    //     // Change the status code to 302
-    //     result.StatusCode = (int)HttpStatusCode.Found;
-
-    //     return result;
-    // }
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? value)
