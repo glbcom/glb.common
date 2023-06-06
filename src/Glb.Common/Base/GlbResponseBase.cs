@@ -9,7 +9,9 @@ public class GlbResponseBase
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Message { get; set; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? RedirectAction { get; set; }
+    public string? NextAction { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? NextActionURL { get; set; }
 
     public GlbResponseBase()
     {

@@ -245,7 +245,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             {
                 Status = statusCode,
                 Message = message,
-                RedirectAction = value != null ? (string)value : null
+                NextAction = value != null ? (string)value : null
             });
         }
         else
@@ -259,10 +259,10 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
         }
     }
     [ApiExplorerSettings(IgnoreApi = true)]
-    public OkObjectResult Ok(string message, Object? value, string redirectAction)
+    public OkObjectResult Ok(string message, Object? value, string nextAction, string? nextActionURL)
     {
         int statusCode = (int)HttpStatusCode.OK;
-        if (!string.IsNullOrWhiteSpace(redirectAction)) statusCode = (int)HttpStatusCode.Redirect;
+        //if (!string.IsNullOrWhiteSpace(nextAction)) statusCode = (int)HttpStatusCode.Redirect;
 
         if (statusCode == (int)HttpStatusCode.Redirect) LogInformation("Redirect :{0}", value);
         else LogInformation("Ok :{0}", value);
@@ -272,7 +272,8 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             Status = statusCode,
             Message = message,
             Data = value,
-            RedirectAction = redirectAction
+            NextAction = nextAction,
+            NextActionURL = nextActionURL
         });
     }
     [ApiExplorerSettings(IgnoreApi = true)]
