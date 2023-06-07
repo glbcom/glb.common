@@ -20,8 +20,10 @@ namespace Glb.Common.Logging
                 }
 
             });
+            services.AddTransient(typeof(IGlbLoggingService<>),typeof(GlbLoggingService<>));
 
             return services;
         }
+        
     }
 }
