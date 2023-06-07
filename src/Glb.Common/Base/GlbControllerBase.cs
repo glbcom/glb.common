@@ -220,6 +220,7 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
     #endregion
 
     #region  Success Requests Sections
+
     [ApiExplorerSettings(IgnoreApi = true)]
     public new OkObjectResult Ok()
     {
@@ -228,18 +229,52 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             Status = (int)HttpStatusCode.OK
         });
     }
+
     [ApiExplorerSettings(IgnoreApi = true)]
     public OkObjectResult Ok(string message, Object? value)
     {
+        int statusCode = (int)HttpStatusCode.OK;
+        if (value != null && value is string) statusCode = (int)HttpStatusCode.Redirect;
 
-        LogInformation("Ok :{0}", value);
+        if (statusCode == (int)HttpStatusCode.Redirect) LogInformation("Redirect :{0}", value);
+        else LogInformation("Ok :{0}", value);
+
+        if (statusCode == (int)HttpStatusCode.Redirect)
+        {
+            return base.Ok(new GlbResponseBase
+            {
+                Status = statusCode,
+                Message = message,
+                NextAction = value != null ? (string)value : null
+            });
+        }
+        else
+        {
+            return base.Ok(new GlbResponseBase
+            {
+                Status = statusCode,
+                Message = message,
+                Data = value
+            });
+        }
+    }
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public OkObjectResult Ok(string message, Object? value, string nextAction, string? nextActionURL)
+    {
+        int statusCode = (int)HttpStatusCode.OK;
+        //if (!string.IsNullOrWhiteSpace(nextAction)) statusCode = (int)HttpStatusCode.Redirect;
+
+        if (statusCode == (int)HttpStatusCode.Redirect) LogInformation("Redirect :{0}", value);
+        else LogInformation("Ok :{0}", value);
+
         return base.Ok(new GlbResponseBase
         {
-            Status = (int)HttpStatusCode.OK,
+            Status = statusCode,
             Message = message,
-            Data = value
+            Data = value,
+            NextAction = nextAction,
+            NextActionURL = nextActionURL
         });
-
     }
     [ApiExplorerSettings(IgnoreApi = true)]
     public override OkObjectResult Ok(Object? value)
@@ -258,8 +293,8 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             Data = value
         });
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     public override CreatedAtActionResult CreatedAtAction(string? actionName, Object? value)
     {
         return base.CreatedAtAction(actionName, new GlbResponseBase
