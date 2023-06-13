@@ -37,5 +37,7 @@ public enum ProductType
     [Description("IFly")]
     IFly = 12,
     [Description("DialUp")]
-    DialUp = 5
+    DialUp = 5,
+    [Description("Cable Vission Bundle")]
+    TVBunble = 14
 }
