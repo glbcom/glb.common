@@ -78,6 +78,7 @@ Action<IRetryConfigurator>? configureRetries = null)
                 configurator.AddSagaStateMachine<TStateMachine, TState>(sagaConfigurator =>
                 {
                     sagaConfigurator.UseInMemoryOutbox();
+                    
                 })
                 .MongoDbRepository(repo =>
                 {
