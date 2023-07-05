@@ -70,44 +70,32 @@ Action<IRetryConfigurator>? configureRetries = null)
 
             return services;
         }
-        public static IServiceCollection AddMassTransitWithSagaAndMongo<TStateMachine, TState>(
-            this IServiceCollection services,
-            IConfiguration config,
-            Action<IRetryConfigurator>? configureRetries = null,
-            Action<IBusRegistrationConfigurator>? endpointConfigurator = null
-            )
+        public static IBusRegistrationConfigurator AddSagaStateMachineWithMongo<TStateMachine, TState>(this IBusRegistrationConfigurator configurator,IConfiguration config)
             where TStateMachine : MassTransitStateMachine<TState>
-            where TState : class, SagaStateMachineInstance,ISagaVersion {
-            services.AddMassTransit(configure =>
-            {
-                configure.UsingMessageBroker(config, configureRetries);
-
-                configure.AddConsumers(Assembly.GetEntryAssembly());
-                configure.AddSagaStateMachine<TStateMachine, TState>(sagaConfigurator =>
+            where TState : class, SagaStateMachineInstance, ISagaVersion
+        {
+                configurator.AddConsumers(Assembly.GetEntryAssembly());
+                configurator.AddSagaStateMachine<TStateMachine, TState>(sagaConfigurator =>
                 {
                     sagaConfigurator.UseInMemoryOutbox();
+                    
                 })
-                    .MongoDbRepository(r =>
-                    {
-                        var serviceSettings = config.GetSection(nameof(ServiceSettings))
-                                                           .Get<ServiceSettings>();
-                        var mongoSettings = config.GetSection(nameof(MongoDbSettings))
-                                                           .Get<MongoDbSettings>();
-                        if(mongoSettings!=null){
-                            r.Connection = mongoSettings.ConnectionString;
-                        }else{
-                            throw new Exception("MongoDbSettings is not configured");
-                        }
-                        if(serviceSettings!=null){
-                            r.DatabaseName = serviceSettings.ServiceName;
-                        }else{
-                            throw new Exception("ServiceSettings is not configured");
-                        }
-                        
-                    });
-                    endpointConfigurator?.Invoke(configure);
-            });
-            return services;
+                .MongoDbRepository(repo =>
+                {
+                    var serviceSettings = config.GetSection(nameof(ServiceSettings))
+                                                       .Get<ServiceSettings>();
+                    var mongoSettings = config.GetSection(nameof(MongoDbSettings))
+                                                       .Get<MongoDbSettings>();
+                    if (mongoSettings != null)
+                        repo.Connection = mongoSettings.ConnectionString;
+                    else
+                        throw new Exception("MongoDbSettings is not configured");
+                    if (serviceSettings != null)
+                        repo.DatabaseName = serviceSettings.ServiceName;
+                    else
+                        throw new Exception("ServiceSettings is not configured");
+                });
+            return configurator;
         }
 
 
