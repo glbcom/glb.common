@@ -18,7 +18,7 @@ dotnet nuget push ..\..\nuget_packages\Glb.Common.$version.nupkg --api-key $gh_p
 ## Create and publish the NuGet package on Gitlab
 
 ```powershell
-$version="1.1.50"
+$version="1.1.54"
 $owner="globalcom"
 $gh_pat="[PAT HERE]"
 
