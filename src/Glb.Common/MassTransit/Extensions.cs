@@ -16,8 +16,8 @@ namespace Glb.Common.MassTransit
 
         public static IServiceCollection AddMassTransitWithMessageBroker(
            this IServiceCollection services,
-IConfiguration config,
-Action<IRetryConfigurator>? configureRetries = null)
+    IConfiguration config,
+        Action<IRetryConfigurator>? configureRetries = null)
         {
             var serviceSettings = config.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
             if (serviceSettings != null && configureRetries != null)
@@ -39,7 +39,7 @@ Action<IRetryConfigurator>? configureRetries = null)
         }
 
         public static IServiceCollection AddMassTransitWithRabbitMq(
-                    this IServiceCollection services,
+         this IServiceCollection services,
          Action<IRetryConfigurator>? configureRetries = null)
         {
             services.AddMassTransit(configure =>
@@ -70,31 +70,31 @@ Action<IRetryConfigurator>? configureRetries = null)
 
             return services;
         }
-        public static IBusRegistrationConfigurator AddSagaStateMachineWithMongo<TStateMachine, TState>(this IBusRegistrationConfigurator configurator,IConfiguration config)
+        public static IBusRegistrationConfigurator AddSagaStateMachineWithMongo<TStateMachine, TState>(this IBusRegistrationConfigurator configurator, IConfiguration config)
             where TStateMachine : MassTransitStateMachine<TState>
             where TState : class, SagaStateMachineInstance, ISagaVersion
         {
-                configurator.AddConsumers(Assembly.GetEntryAssembly());
-                configurator.AddSagaStateMachine<TStateMachine, TState>(sagaConfigurator =>
-                {
-                    sagaConfigurator.UseInMemoryOutbox();
-                    
-                })
-                .MongoDbRepository(repo =>
-                {
-                    var serviceSettings = config.GetSection(nameof(ServiceSettings))
-                                                       .Get<ServiceSettings>();
-                    var mongoSettings = config.GetSection(nameof(MongoDbSettings))
-                                                       .Get<MongoDbSettings>();
-                    if (mongoSettings != null)
-                        repo.Connection = mongoSettings.ConnectionString;
-                    else
-                        throw new Exception("MongoDbSettings is not configured");
-                    if (serviceSettings != null)
-                        repo.DatabaseName = serviceSettings.ServiceName;
-                    else
-                        throw new Exception("ServiceSettings is not configured");
-                });
+            configurator.AddConsumers(Assembly.GetEntryAssembly());
+            configurator.AddSagaStateMachine<TStateMachine, TState>(sagaConfigurator =>
+            {
+                sagaConfigurator.UseInMemoryOutbox();
+
+            })
+            .MongoDbRepository(repo =>
+            {
+                var serviceSettings = config.GetSection(nameof(ServiceSettings))
+                                                   .Get<ServiceSettings>();
+                var mongoSettings = config.GetSection(nameof(MongoDbSettings))
+                                                   .Get<MongoDbSettings>();
+                if (mongoSettings != null)
+                    repo.Connection = mongoSettings.ConnectionString;
+                else
+                    throw new Exception("MongoDbSettings is not configured");
+                if (serviceSettings != null)
+                    repo.DatabaseName = serviceSettings.ServiceName;
+                else
+                    throw new Exception("ServiceSettings is not configured");
+            });
             return configurator;
         }
 
@@ -102,7 +102,8 @@ Action<IRetryConfigurator>? configureRetries = null)
         public static void UsingMessageBroker(
             this IBusRegistrationConfigurator configure,
             IConfiguration config,
-            Action<IRetryConfigurator>? configureRetries = null)
+            Action<IRetryConfigurator>? configureRetries = null,
+            List<Uri>? uriList = null)
         {
             var serviceSettings = config.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
             if (serviceSettings != null && configureRetries != null)
@@ -114,7 +115,11 @@ Action<IRetryConfigurator>? configureRetries = null)
                         break;
                     case RabbitMq:
                     default:
-                        configure.UsingRabbitMq(configureRetries);
+                        configure.UsingRabbitMq((context, configureRetries) =>
+                        {
+                          /*  if (uriList != null)
+                                uriList.ForEach(uri => configureRetries.UseMessageScheduler(uri));*/
+                        });
                         break;
                 }
             }
@@ -123,7 +128,8 @@ Action<IRetryConfigurator>? configureRetries = null)
 
         public static void UsingRabbitMq(
             this IBusRegistrationConfigurator configure,
-            Action<IRetryConfigurator>? configureRetries = null)
+            Action<IRetryConfigurator>? configureRetries = null,
+            List<Uri>? uriList = null)
         {
             configure.UsingRabbitMq((context, configurator) =>
             {
@@ -145,6 +151,9 @@ Action<IRetryConfigurator>? configureRetries = null)
                     {
                         configureRetries = (retryConfigurator) => retryConfigurator.Interval(3, TimeSpan.FromSeconds(5));
                     }
+
+                    if(uriList != null)
+                       uriList.ForEach(uri => configurator.UseMessageScheduler(uri));
 
                     configurator.UseMessageRetry(configureRetries);
                     if (serviceSettings != null)
