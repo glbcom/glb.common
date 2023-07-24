@@ -10,6 +10,7 @@ namespace Glb.Common.Base;
 public abstract class GlbMainControllerBase : ControllerBase
 {
     private Entities.GlbApplicationUser? _currentUser;
+    private string? _clientId;
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public bool CurrentUserIsInRole(string role)
@@ -119,4 +120,22 @@ public abstract class GlbMainControllerBase : ControllerBase
         }
 
     }
+
+    public string? ClientId
+    {
+        get
+        {
+            if (User != null)
+            {
+                var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (nameIdentifierClaim != null)
+                {
+                    // Get the client ID value
+                    _clientId = nameIdentifierClaim.Value;
+                }
+            }
+            return _clientId;
+        }
+    }
+
 }
