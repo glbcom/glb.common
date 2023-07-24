@@ -5,7 +5,7 @@ Common library used by Globalcom microservices ecosystem
 ## Create and publish package on Github
 
 ```powershell
-$version="1.1.62" 
+$version="1.1.63" 
 $owner="glbcom"
 $gh_pat="PAT HERE"
 

@@ -121,10 +121,10 @@ public abstract class GlbMainControllerBase : ControllerBase
 
     }
 
-    public string? ClientId
+    public string? ClientId()
     {
-        get
-        {
+        // get
+        // {
             if (User != null)
             {
                 var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -135,7 +135,7 @@ public abstract class GlbMainControllerBase : ControllerBase
                 }
             }
             return _clientId;
-        }
+        //}
     }
 
 }
