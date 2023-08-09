@@ -139,7 +139,7 @@ public abstract class GlbMainControllerBase : ControllerBase
         }
     }
 
-    private string? TokenString
+    public string? TokenString
     {
         get
         {

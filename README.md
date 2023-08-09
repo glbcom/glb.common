@@ -5,7 +5,7 @@ Common library used by Globalcom microservices ecosystem
 ## Create and publish package on Github
 
 ```powershell
-$version="1.1.76" 
+$version="1.1.77" 
 $owner="glbcom"
 $gh_pat="PAT HERE"
 
@@ -18,7 +18,7 @@ dotnet nuget push ..\..\nuget_packages\Glb.Common.$version.nupkg --api-key $gh_p
 ## Create and publish the NuGet package on Gitlab
 
 ```powershell
-$version="1.1.66"
+$version="1.1.77"
 $owner="globalcom"
 $gh_pat="[PAT HERE]"
 
