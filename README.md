@@ -2,6 +2,19 @@
 
 Common library used by Globalcom microservices ecosystem
 
+## Push Code to repository
+
+For GitHub:
+```powershell
+
+git remote set-url origin https://github.com/glbcom/glb.identity.git
+```
+
+For GitLab: 
+```powershell
+git remote set-url origin https://gitlab.idm.net.lb/globalcom/glb-identity.git
+```
+
 ## Create and publish package on Github
 
 ```powershell
