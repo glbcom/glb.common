@@ -68,7 +68,7 @@ namespace Glb.Common.MongoDB
         public async Task<T> UpdateAsync(T entity)
         {
             
-
+            int retryCount=0;
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
@@ -76,18 +76,40 @@ namespace Glb.Common.MongoDB
 
             FilterDefinition<T> filter = filterBuilder.Eq(existingEntity => existingEntity.Id, entity.Id);
 
-            ReplaceOneResult result = await dbCollection.ReplaceOneAsync(filter, entity);
-            if (result.ModifiedCount == 0) 
+             await retryPolicy.ExecuteAsync(async () =>
             {
-                // Log: No documents were updated
-                if(logger!=null){
-                logger.LogCritical("No documents were updated for Id:{Id}",entity.Id);
+                try
+                {
+                    ReplaceOneResult result = await dbCollection.ReplaceOneAsync(filter, entity);
+                    if (result.ModifiedCount < 1) 
+                   {
+                        // Log: No documents were updated
+                        retryCount+=1;
+                        if(logger!=null){
+                        logger.LogError("No documents were updated for Id:{Id}, retry count:{retryCount}, ModifiedCount:{ModifiedCount}",entity.Id,retryCount,result.ModifiedCount);
+                        }
+                        throw new NoDocumentsModifiedException($"No documents were updated for Id:{entity.Id} retry count:{retryCount}");
+                    }
+                    else if (result.ModifiedCount > 1) 
+                    {
+                        // Log: More than one document were updated. This is not expected in a ReplaceOne operation.
+                         if(logger!=null){
+                        logger.LogError("More than one document were updated. This is not expected in a ReplaceOne operation");
+                         }
+                    } 
+                    else 
+                    {
+                         if(logger!=null){
+                            logger.LogInformation("document updated successfully for Id:{Id}",entity.Id);
+                         } 
+                    }
+                
+                }catch(Exception ex){
+                      if(logger!=null){
+                        logger.LogError(ex, "Unexpected error updating entity {EntityId}", entity.Id);
+                      }
                 }
-            }
-            else if (result.ModifiedCount > 1) 
-            {
-                // Log: More than one document were updated. This is not expected in a ReplaceOne operation.
-            }          
+            });         
             return entity;
         }
 

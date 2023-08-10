@@ -8,6 +8,11 @@ namespace Glb.Common.Logging{
     public interface IGlbLoggingService<T>
     {
         void LogInformation(string message, params object?[] args);
+        void LogError(string message, params object?[] args);
+        void LogWarning(string message, params object?[] args);
+        void LogDebug(string message, params object?[] args);
+        void LogTrace(string message, params object?[] args);
+        void LogCritical(string message, params object?[] args);
     }
 
     public class GlbLoggingService<T> : IGlbLoggingService<T>
@@ -103,6 +108,26 @@ namespace Glb.Common.Logging{
         public void LogInformation(string message, params object?[] args)
         {
             LogMessageWithValue(LogLevel.Information, message, args);
+        }
+        public void LogError(string message, params object?[] args)
+        {
+            LogMessageWithValue(LogLevel.Error, message, args);
+        }
+        public void LogWarning(string message, params object?[] args)
+        {
+            LogMessageWithValue(LogLevel.Warning, message, args);
+        }
+        public void LogDebug(string message, params object?[] args)
+        {
+            LogMessageWithValue(LogLevel.Debug, message, args);
+        }
+        public void LogTrace(string message, params object?[] args)
+        {
+            LogMessageWithValue(LogLevel.Trace, message, args);
+        }
+        public void LogCritical(string message, params object?[] args)
+        {
+            LogMessageWithValue(LogLevel.Critical, message, args);
         }
     }
 }
