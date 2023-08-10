@@ -28,17 +28,16 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
                 // Replace the text between curly braces with the values in the args array
                 for (int i = 0; i < matches.Count; i++)
                 {
-
                     problemDetailString = problemDetailString.Replace(matches[i].Value, args[i]?.ToString());
                 }
             }
         }
 
-        message = message + " serviceName:{serviceName} userId:{userId} compId:{compId}";
+        message = message + " serviceName:{serviceName} userId:{userId} compId:{compId} clientId:{clientId}";
 
         // Add the original args to the newArgs array first
         int argsLength = args == null ? 0 : args.Length;
-        object?[] newArgs = new object?[argsLength + 3];
+        object?[] newArgs = new object?[argsLength + 4];
         if (args != null)
         {
             for (int i = 0; i < argsLength; i++)
@@ -47,13 +46,12 @@ public abstract class GlbControllerBase<T> : GlbMainControllerBase where T : Con
             }
         }
 
-
         // Add the three new parameters at the end
         newArgs[argsLength] = serviceSettings == null ? "" : serviceSettings.ServiceName;
         newArgs[argsLength + 1] = CurrentUser?.Id;
         newArgs[argsLength + 2] = CurrentUser?.ScopeCompId;
+        newArgs[argsLength + 3] = !string.IsNullOrEmpty(ClientId) ?  ClientId : "";
         args = newArgs;
-
 
         switch (logLevel)
         {

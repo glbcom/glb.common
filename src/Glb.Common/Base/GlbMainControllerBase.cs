@@ -11,6 +11,7 @@ public abstract class GlbMainControllerBase : ControllerBase
 {
     private Entities.GlbApplicationUser? _currentUser;
     private string? _clientId;
+    private string? _tokenString;
 
     [ApiExplorerSettings(IgnoreApi = true)]
     public bool CurrentUserIsInRole(string role)
@@ -121,21 +122,35 @@ public abstract class GlbMainControllerBase : ControllerBase
 
     }
 
-    public string? ClientId()
+    public string? ClientId
     {
-        // get
-        // {
+        get
+        {
             if (User != null)
             {
-                var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (nameIdentifierClaim != null)
+                var clientIdClaim = User.Claims.FirstOrDefault(c => c.Type == "client_id");
+
+                if (clientIdClaim != null)
                 {
-                    // Get the client ID value
-                    _clientId = nameIdentifierClaim.Value;
+                    _clientId = clientIdClaim.Value;
                 }
             }
             return _clientId;
-        //}
+        }
+    }
+
+    public string? TokenString
+    {
+        get
+        {
+            // Get the JWT token from the Authorization header
+            if (HttpContext.Request.Headers.TryGetValue("Authorization", out var authorizationHeader) &&
+                authorizationHeader.ToString().StartsWith("Bearer "))
+            {
+                _tokenString = authorizationHeader.ToString().Substring("Bearer ".Length);
+            }
+            return _tokenString;
+        }
     }
 
 }
