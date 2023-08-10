@@ -6,6 +6,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Glb.Common.Settings;
 using Glb.Common.Inerfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Glb.Common.MongoDB
 {
@@ -53,10 +54,13 @@ namespace Glb.Common.MongoDB
             services.AddSingleton<IRepository<T>>(serviceProvider =>
             {
                 var database = serviceProvider.GetService<IMongoDatabase>();
+                var logger = serviceProvider.GetService<ILogger<T>>();
                 if (database != null)
                 {
+                  
+                         return new MongoRepository<T>(database, GetCollectionName<T>(collectionName),logger);
                     
-                    return new MongoRepository<T>(database, GetCollectionName<T>(collectionName));
+                   
                 }
                 else
                 {

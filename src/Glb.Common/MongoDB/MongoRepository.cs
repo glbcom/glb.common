@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using Glb.Common.Inerfaces;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
+using Glb.Common.Exceptions;
 
 namespace Glb.Common.MongoDB
 {
@@ -13,10 +17,20 @@ namespace Glb.Common.MongoDB
     {
         private readonly IMongoCollection<T> dbCollection;
         private readonly FilterDefinitionBuilder<T> filterBuilder = Builders<T>.Filter;
+        private readonly ILogger<T>? logger;
+        private readonly AsyncRetryPolicy retryPolicy;
 
-        public MongoRepository(IMongoDatabase database, string collectionName)
+
+        public MongoRepository(IMongoDatabase database, string collectionName,ILogger<T>? logger)
         {
             dbCollection = database.GetCollection<T>(collectionName);
+            this.logger=logger;
+            // Define a retry policy: wait and retry up to 5 times, 
+            // waiting for 2, 4, 8, 16 and 32 seconds between attempts
+            retryPolicy = Policy
+            .Handle<NoDocumentsModifiedException>()
+            .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
         }
 
         public async Task<IReadOnlyCollection<T>> GetAllAsync()
@@ -53,13 +67,27 @@ namespace Glb.Common.MongoDB
 
         public async Task<T> UpdateAsync(T entity)
         {
+            
+
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
 
             FilterDefinition<T> filter = filterBuilder.Eq(existingEntity => existingEntity.Id, entity.Id);
-            await dbCollection.ReplaceOneAsync(filter, entity);
+
+            ReplaceOneResult result = await dbCollection.ReplaceOneAsync(filter, entity);
+            if (result.ModifiedCount == 0) 
+            {
+                // Log: No documents were updated
+                if(logger!=null){
+                logger.LogCritical("No documents were updated for Id:{Id}",entity.Id);
+                }
+            }
+            else if (result.ModifiedCount > 1) 
+            {
+                // Log: More than one document were updated. This is not expected in a ReplaceOne operation.
+            }          
             return entity;
         }
 
