@@ -14,6 +14,7 @@ namespace Glb.Common.Inerfaces
         Task<T> GetAsync(Expression<Func<T, bool>> filter);
         Task RemoveAsync(Guid id);
         Task<T> UpdateAsync(T entity);
+        /*Task UpdateAsync(List<T> entity, Dictionary<string, object> values);*/
         Task SaveAll(List<T> lstEntity);
     }
 }

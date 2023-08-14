@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 using Glb.Common.Exceptions;
-
+using System.Linq;
 namespace Glb.Common.MongoDB
 {
 
@@ -21,10 +21,10 @@ namespace Glb.Common.MongoDB
         private readonly AsyncRetryPolicy retryPolicy;
 
 
-        public MongoRepository(IMongoDatabase database, string collectionName,ILogger<T>? logger)
+        public MongoRepository(IMongoDatabase database, string collectionName, ILogger<T>? logger)
         {
-            dbCollection = database.GetCollection<T>(collectionName);
-            this.logger=logger;
+            dbCollection = database.GetCollection<T>(collectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.WMajority, ReadConcern = ReadConcern.Majority });
+            this.logger = logger;
             // Define a retry policy: wait and retry up to 5 times, 
             // waiting for 2, 4, 8, 16 and 32 seconds between attempts
             retryPolicy = Policy
@@ -65,10 +65,29 @@ namespace Glb.Common.MongoDB
             return entity;
         }
 
+        /*public Task UpdateAsync(List<T> entity, Dictionary<string, object> values)
+        {
+                entity.ForEach(async ent =>
+                {
+                    try
+                    {
+                        FilterDefinition<T> filter = filterBuilder.Eq(existingEntity => existingEntity.Id, ent.Id);
+                        UpdateDefinition<T>? updateDefinition = null;
+                        values.ToList().ForEach(a => { updateDefinition.AddToSet(a.Key, a.Value);});
+                        UpdateResult result = await dbCollection.UpdateOneAsync(filter, updateDefinition);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (logger != null)
+                        {
+                            logger.LogError(ex, "Unexpected error updating entity {EntityId}", ent.Id);
+                        }
+                    }
+                });
+        }*/
         public async Task<T> UpdateAsync(T entity)
         {
-            
-            int retryCount=0;
+            int retryCount = 0;
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
@@ -76,40 +95,46 @@ namespace Glb.Common.MongoDB
 
             FilterDefinition<T> filter = filterBuilder.Eq(existingEntity => existingEntity.Id, entity.Id);
 
-             await retryPolicy.ExecuteAsync(async () =>
-            {
-                try
-                {
-                    ReplaceOneResult result = await dbCollection.ReplaceOneAsync(filter, entity);
-                    if (result.ModifiedCount < 1) 
+            await retryPolicy.ExecuteAsync(async () =>
+           {
+               try
+               {
+                   ReplaceOneResult result = await dbCollection.ReplaceOneAsync(filter, entity);
+                   if (result.ModifiedCount < 1 || !result.IsAcknowledged)
                    {
-                        // Log: No documents were updated
-                        retryCount+=1;
-                        if(logger!=null){
-                        logger.LogError("No documents were updated for Id:{Id}, retry count:{retryCount}, ModifiedCount:{ModifiedCount}",entity.Id,retryCount,result.ModifiedCount);
-                        }
-                        throw new NoDocumentsModifiedException($"No documents were updated for Id:{entity.Id} retry count:{retryCount}");
-                    }
-                    else if (result.ModifiedCount > 1) 
-                    {
-                        // Log: More than one document were updated. This is not expected in a ReplaceOne operation.
-                         if(logger!=null){
-                        logger.LogError("More than one document were updated. This is not expected in a ReplaceOne operation");
-                         }
-                    } 
-                    else 
-                    {
-                         if(logger!=null){
-                            logger.LogInformation("document updated successfully for Id:{Id}",entity.Id);
-                         } 
-                    }
-                
-                }catch(Exception ex){
-                      if(logger!=null){
-                        logger.LogError(ex, "Unexpected error updating entity {EntityId}", entity.Id);
-                      }
-                }
-            });         
+                       // Log: No documents were updated
+                       retryCount += 1;
+                       if (logger != null)
+                       {
+                           logger.LogError("No documents were updated for Id:{Id}, retry count:{retryCount}, ModifiedCount:{ModifiedCount}", entity.Id, retryCount, result.ModifiedCount);
+                       }
+                       throw new NoDocumentsModifiedException($"No documents were updated for Id:{entity.Id} retry count:{retryCount}");
+                   }
+                   else if (result.ModifiedCount > 1)
+                   {
+                       // Log: More than one document were updated. This is not expected in a ReplaceOne operation.
+                       if (logger != null)
+                       {
+                           logger.LogError("More than one document were updated. This is not expected in a ReplaceOne operation");
+                       }
+                   }
+                   else
+                   {
+                       if (logger != null)
+                       {
+                           logger.LogInformation("document updated successfully for Id:{Id}", entity.Id);
+                       }
+                   }
+
+               }
+               catch (Exception ex)
+               {
+                   if (logger != null)
+                   {
+                       logger.LogError(ex, "Unexpected error updating entity {EntityId}", entity.Id);
+                   }
+               }
+           });
             return entity;
         }
 

@@ -7,18 +7,18 @@ Common library used by Globalcom microservices ecosystem
 For GitHub:
 ```powershell
 
-git remote set-url origin https://github.com/glbcom/glb.identity.git
+git remote set-url origin https://github.com/glbcom/glb.common.git
 ```
 
 For GitLab: 
 ```powershell
-git remote set-url origin https://gitlab.idm.net.lb/globalcom/glb-identity.git
+git remote set-url origin https://gitlab.idm.net.lb/globalcom/glb-common.git
 ```
 
 ## Create and publish package on Github
 
 ```powershell
-$version="1.1.79" 
+$version="1.1.83" 
 $owner="glbcom"
 $gh_pat="PAT HERE"
 
@@ -31,7 +31,7 @@ dotnet nuget push ..\..\nuget_packages\Glb.Common.$version.nupkg --api-key $gh_p
 ## Create and publish the NuGet package on Gitlab
 
 ```powershell
-$version="1.1.77"
+$version="1.1.82"
 $owner="globalcom"
 $gh_pat="[PAT HERE]"
 
